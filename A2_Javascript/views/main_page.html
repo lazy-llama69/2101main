@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .kanban-board {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .kanban-column {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+        }
+
+        .column-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .task-item .task-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-buttons button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .add-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Management</h1>
+        <div class="kanban-board">
+            <div class="kanban-column">
+                <h2 class="column-title">To Do</h2>
+                <ul class="task-list">
+                    <li class="task-item">
+                        Task 1
+                        <div class="task-buttons">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </div>
+                    </li>
+                    <!-- Add more tasks here -->
+                </ul>
+            </div>
+            <div class="kanban-column">
+                <h2 class="column-title">In Progress</h2>
+                <ul class="task-list">
+                    <!-- Tasks in progress -->
+                </ul>
+            </div>
+            <div class="kanban-column">
+                <h2 class="column-title">Done</h2>
+                <ul class="task-list">
+                    <!-- Completed tasks -->
+                </ul>
+            </div>
+        </div>
+        <button class="add-button">Add Task</button>
+    </div>
+</body>
+</html>
