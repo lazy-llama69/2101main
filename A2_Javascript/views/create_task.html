@@ -62,7 +62,7 @@
     </style>
 
     <!-- You can include your external JavaScript file here as well -->
-    <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script>
+    <!-- <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script> -->
 </head>
 <body>
     <h1>Create a New Task</h1>
@@ -77,7 +77,7 @@
 
             <!-- Task Description -->
             <label for="taskDescription">Description:</label>
-            <textarea id="taskDescription" rows="4"></textarea><br>
+            <textarea id="taskDescription" rows="4" required></textarea><br>
 
             <!-- Task Priority -->
             <label for="taskPriority">Priority:</label>
@@ -87,9 +87,76 @@
                 <option value="HIGH">High</option>
             </select><br>
 
+            <!-- Add Complexity Input -->
+            <label for="taskComplexity">Complexity:</label>
+            <input type="text" id="taskComplexity" name="taskComplexity"><br>
+            
+            <!-- Add Tag Input -->
+            <label for="taskTag">Tag:</label>
+            <input type="text" id="taskTag" name="taskTag"><br>
+
+            <!-- Add Status Input -->
+            <label for="taskStatus">Status:</label>
+            <select id="taskStatus" name="taskStatus">
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DONE">Done</option>
+            </select><br>
+
+            <!-- Add Stage Input -->
+            <label for="taskStage">Stage:</label>
+            <input type="text" id="taskStage" name="taskStage"><br>            
+
             <!-- Submit Button -->
             <button type="submit">Create Task</button>
         </form>
     </div>
+    <script>
+        document.getElementById("createTaskForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Collect form data
+            const taskName = document.getElementById("taskName").value;
+            const taskDescription = document.getElementById("taskDescription").value;
+            const taskPriority = document.getElementById("taskPriority").value;
+            const taskComplexity = document.getElementById("taskComplexity").value;
+            const taskTag = document.getElementById("taskTag").value;
+            const taskStatus = document.getElementById("taskStatus").value;
+            const taskStage = document.getElementById("taskStage").value;
+
+            // Create a JavaScript object with the form data
+            const formData = {
+                taskName,
+                taskComplexity,
+                taskTag,
+                taskPriority,
+                taskDescription,
+                taskStatus,
+                taskStage
+            };
+
+            // Send a POST request with the form data to the server
+            fetch("/create_task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirect to the main page upon successful submission
+                    window.location.href = "/main_page";
+                } else {
+                    // Handle errors here (e.g., display an error message)
+                    console.error("Form submission failed");
+                }
+            })
+            .catch(error => {
+                // Handle network or other errors
+                console.error("Error:", error);
+            });
+        });
+    </script>
 </body>
 </html>

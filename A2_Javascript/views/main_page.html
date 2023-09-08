@@ -120,7 +120,14 @@
                 </ul>
             </div>
         </div>
-        <button class="add-button">Add Task</button>
+        <!-- Button onclick will call the navigateToCreateTask -->
+        <button class="add-button" onclick="navigateToCreateTask()">Add Task</button>
     </div>
+
+    <script>
+        function navigateToCreateTask() {
+            window.location.href = "/create_task_page"; // Navigate to the create_task.html page
+        }
+    </script>
 </body>
 </html>

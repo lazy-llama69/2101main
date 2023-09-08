@@ -4,13 +4,13 @@
  */
 class Task {
 
-    constructor(id, name, complexity, tag, priority, assignees, description, status, stage) {
+    constructor(name, complexity, tag, priority, description, status, stage) {
 
         this.id = this.generateId();
         this.name = name;
         this.complexity = complexity ;
         this.tag = tag ;
-        this.priority = [];
+        this.priority = priority;
         this.assignees = [];
         this.description = description;
         this.status = status;
@@ -18,7 +18,7 @@ class Task {
     }
 
 
-    get generateId() {
+    generateId() {
         const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const randomChar1 = characters[Math.floor(Math.random()*characters.length)];
         const randomChar2 = characters[Math.floor(Math.random()*characters.length)];
