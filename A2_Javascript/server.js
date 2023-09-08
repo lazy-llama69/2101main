@@ -33,11 +33,11 @@ let db;
 // });
 
 app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname, "/views/login_page.html"));
+  res.redirect("/login_page");
   });
 
 app.post("/login_page", function(req, res) {
-    res.render("main_page");
+    res.render("login_page");
 });
 
 // Require your Task class here
@@ -74,4 +74,19 @@ app.get("/main_page", function(req, res) {
 // Add a new route to display the create_task.html page
 app.get("/create_task_page", function(req, res) {
   res.sendFile(path.join(__dirname, "/views/create_task.html"));
+});
+
+// Add a new route to display the edit_task.html page
+app.get("/edit_task_page", function(req, res) {
+  res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+});
+
+// Add a new route to display the delete_task.html page
+app.get("/delete_task_page", function(req, res) {
+  res.sendFile(path.join(__dirname, "/views/delete_task.html"));
+});
+
+// Add a new route to display the login_page.html page
+app.get("/login_page", function(req, res) {
+  res.sendFile(path.join(__dirname, "/views/login_page.html"));
 });

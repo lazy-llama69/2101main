@@ -88,11 +88,31 @@
         .add-button:hover {
             background-color: #0056b3;
         }
+
+        /* styles.css */
+        .top-right {
+            position: absolute;
+            top: 10px; /* Adjust this value to set the vertical position */
+            right: 10px; /* Adjust this value to set the horizontal position */
+        }
+
+        /* Additional styling for the logout button if needed */
+        #logoutButton {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Task Management</h1>
+        <!-- Logout button at the top right -->
+        <div class="top-right">
+            <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
+        </div>
         <div class="kanban-board">
             <div class="kanban-column">
                 <h2 class="column-title">To Do</h2>
@@ -100,8 +120,8 @@
                     <li class="task-item">
                         Task 1  
                         <div class="task-buttons">
-                            <button>✏️</button>
-                            <button>❌</button>
+                            <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                            <button class="delete-button" onclick="navigateToDeleteTask()">❌</button>
                         </div>
                     </li>
                     <!-- Add more tasks here -->
@@ -124,9 +144,22 @@
         <button class="add-button" onclick="navigateToCreateTask()">Add Task</button>
     </div>
 
+    <!-- Adding listeners -->
     <script>
+        function navigateToEditTask() {
+            window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
+        }
+
         function navigateToCreateTask() {
             window.location.href = "/create_task_page"; // Navigate to the create_task.html page
+        }
+
+        function navigateToDeleteTask() {
+            window.location.href = "/delete_task_page"; // Navigate to the delete_task.html page
+        }
+
+        function navigateToLoginPage() {
+            window.location.href = "/login_page"; // Navigate to the login_page.html page
         }
     </script>
 </body>
