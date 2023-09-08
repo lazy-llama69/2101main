@@ -37,6 +37,5 @@ app.get("/", function (req, res) {
   });
 
 app.post("/login_page", function(req, res) {
-    console.log("ok")
     res.render("main_page");
 });

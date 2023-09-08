@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Task</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px; /* Adjust the max-width to fit your content */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <!-- You can include your external JavaScript file here as well -->
+    <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script>
+</head>
+<body>
+    <h1>Create a New Task</h1>
+
+    <!-- Outer Box (Container) -->
+    <div class="container">
+        <!-- Task Creation Form -->
+        <form id="createTaskForm">
+            <!-- Task Name -->
+            <label for="taskName">Task Name:</label>
+            <input type="text" id="taskName" required><br>
+
+            <!-- Task Description -->
+            <label for="taskDescription">Description:</label>
+            <textarea id="taskDescription" rows="4"></textarea><br>
+
+            <!-- Task Priority -->
+            <label for="taskPriority">Priority:</label>
+            <select id="taskPriority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select><br>
+
+            <!-- Submit Button -->
+            <button type="submit">Create Task</button>
+        </form>
+    </div>
+</body>
+</html>
