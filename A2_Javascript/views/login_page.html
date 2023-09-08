@@ -78,8 +78,17 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn">Login</button>
+            <button type="submit" class="btn" onclick="navigateToMainPage()">Login</button>
         </form>
     </div>
+
+    <!-- Adding listeners -->
+    <script>
+        function navigateToMainPage() {
+            window.location.href = "/main_page"; // Navigate to the create_task.html page
+        }
+    </script>
+
+    
 </body>
 </html>
