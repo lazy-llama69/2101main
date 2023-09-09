@@ -37,7 +37,7 @@ app.get("/", function (req, res) {
   });
 
 app.post("/login_page", function(req, res) {
-    res.render("main_page");
+    res.redirect("main_page");
 });
 
 // Require your Task class here
@@ -89,7 +89,8 @@ app.post("/edit_task", function(req, res) {
 
 app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
-  res.render("main_page");
+  //res.render("main_page");
+  res.sendFile(path.join(__dirname, "/views/main_page.html"));
 });
 
 // Add a new route to display the create_task.html page
