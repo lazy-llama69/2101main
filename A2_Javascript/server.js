@@ -37,7 +37,7 @@ app.get("/", function (req, res) {
   });
 
 app.post("/login_page", function(req, res) {
-    res.render("login_page");
+    res.render("main_page");
 });
 
 // Require your Task class here
