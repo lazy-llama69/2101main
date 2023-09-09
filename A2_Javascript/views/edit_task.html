@@ -69,7 +69,7 @@
 
     <!-- Outer Box (Container) -->
     <div class="container">
-        <!-- Task Edit Form -->
+        <!-- Task Creation Form -->
         <form id="editTaskForm">
             <!-- Task Name -->
             <label for="taskName">Task Name:</label>
@@ -87,15 +87,15 @@
                 <option value="HIGH">High</option>
             </select><br>
 
-            <!-- Edit Complexity Input -->
+            <!-- Add Complexity Input -->
             <label for="taskComplexity">Complexity:</label>
             <input type="text" id="taskComplexity" name="taskComplexity"><br>
             
-            <!-- Edit Tag Input -->
+            <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
             <input type="text" id="taskTag" name="taskTag"><br>
 
-            <!-- Edit Status Input -->
+            <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
             <select id="taskStatus" name="taskStatus">
                 <option value="TO_DO">To Do</option>
@@ -103,7 +103,7 @@
                 <option value="DONE">Done</option>
             </select><br>
 
-            <!-- Edit Stage Input -->
+            <!-- Add Stage Input -->
             <label for="taskStage">Stage:</label>
             <input type="text" id="taskStage" name="taskStage"><br>            
 
@@ -115,7 +115,7 @@
         document.getElementById("editTaskForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
             
-            // Collect form data (similar to create task form)
+            // Collect form data
             const taskName = document.getElementById("taskName").value;
             const taskDescription = document.getElementById("taskDescription").value;
             const taskPriority = document.getElementById("taskPriority").value;
@@ -136,7 +136,7 @@
             };
 
             // Send a POST request with the form data to the server
-            fetch("/update_task", {
+            fetch("/edit_task", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
