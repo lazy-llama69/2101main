@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px; /* Adjust the max-width to fit your content */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 93%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <!-- You can include your external JavaScript file here as well -->
+    <!-- <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script> -->
+</head>
+<body>
+    <h1>Edit Task</h1>
+
+    <!-- Outer Box (Container) -->
+    <div class="container">
+        <!-- Task Edit Form -->
+        <form id="editTaskForm">
+            <!-- Task Name -->
+            <label for="taskName">Task Name:</label>
+            <input type="text" id="taskName" required><br>
+
+            <!-- Task Description -->
+            <label for="taskDescription">Description:</label>
+            <textarea id="taskDescription" rows="4" required></textarea><br>
+
+            <!-- Task Priority -->
+            <label for="taskPriority">Priority:</label>
+            <select id="taskPriority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+            </select><br>
+
+            <!-- Edit Complexity Input -->
+            <label for="taskComplexity">Complexity:</label>
+            <input type="text" id="taskComplexity" name="taskComplexity"><br>
+            
+            <!-- Edit Tag Input -->
+            <label for="taskTag">Tag:</label>
+            <input type="text" id="taskTag" name="taskTag"><br>
+
+            <!-- Edit Status Input -->
+            <label for="taskStatus">Status:</label>
+            <select id="taskStatus" name="taskStatus">
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DONE">Done</option>
+            </select><br>
+
+            <!-- Edit Stage Input -->
+            <label for="taskStage">Stage:</label>
+            <input type="text" id="taskStage" name="taskStage"><br>            
+
+            <!-- Submit Button -->
+            <button type="submit">Update Task</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById("editTaskForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Collect form data (similar to create task form)
+            const taskName = document.getElementById("taskName").value;
+            const taskDescription = document.getElementById("taskDescription").value;
+            const taskPriority = document.getElementById("taskPriority").value;
+            const taskComplexity = document.getElementById("taskComplexity").value;
+            const taskTag = document.getElementById("taskTag").value;
+            const taskStatus = document.getElementById("taskStatus").value;
+            const taskStage = document.getElementById("taskStage").value;
+
+            // Create a JavaScript object with the form data
+            const formData = {
+                taskName,
+                taskComplexity,
+                taskTag,
+                taskPriority,
+                taskDescription,
+                taskStatus,
+                taskStage
+            };
+
+            // Send a POST request with the form data to the server
+            fetch("/update_task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirect to the main page upon successful submission
+                    window.location.href = "/main_page";
+                } else {
+                    // Handle errors here (e.g., display an error message)
+                    console.error("Form submission failed");
+                }
+            })
+            .catch(error => {
+                // Handle network or other errors
+                console.error("Error:", error);
+            });
+        });
+    </script>
+</body>
+</html>
