@@ -78,16 +78,39 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn" onclick="navigateToMainPage()">Login</button>
+            <button type="submit" class="btn" >Login</button>
         </form>
     </div>
 
     <!-- Adding listeners -->
-    <script>
-        function navigateToMainPage() {
-            window.location.href = "/main_page"; // Navigate to the create_task.html page
+<!-- Adding listeners -->
+<script>
+    function navigateToMainPage() {
+        window.location.href = "/main_page"; // Navigate to the main_page.html page
+    }
+
+    function validateLoginForm() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        // Check if both username and password are filled
+        if (username && password) {
+            // If both fields are filled, navigate to the main page
+            navigateToMainPage();
+            return true; // Allow form submission
+        } else {
+            // If either field is empty, display an error message or prevent submission
+            alert("Please fill in both username and password.");
+            return false; // Prevent form submission
         }
-    </script>
+    }
+</script>
+
+
+
+
+
+
 
     
 </body>
