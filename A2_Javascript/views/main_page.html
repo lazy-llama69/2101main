@@ -122,6 +122,13 @@
                         <div class="task-buttons">
                             <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
                             <button class="delete-button" onclick="navigateToDeleteTask()">❌</button>
+                            <dialog close class="modal" id="modal">
+                                <h2>Delete Task</h2>
+                                <p>Task will be permanently deleted.</p>
+                                <!-- both are temporarily to close bc no task deletion yet -->
+                                <button class="confirm-delete-button">Delete</button> 
+                                <button class="cancel-button">Cancel</button>
+                            </dialog>
                         </div>
                     </li>
                     <!-- Add more tasks here -->
@@ -155,7 +162,27 @@
         }
 
         function navigateToDeleteTask() {
-            window.location.href = "/delete_task_page"; // Navigate to the delete_task.html page
+            // if I place the code outside the function, it works without clicking twice
+            // when inside - the delete button needs to be clicked twice before triggering the
+            // pop up
+            const modal = document.querySelector("#modal");
+            const openModal = document.querySelector(".delete-button");
+            const closeModal = document.querySelector(".confirm-delete-button");
+            const closeModal2 = document.querySelector(".cancel-button");
+
+
+            openModal.addEventListener("click", () => {
+            modal.showModal();
+            });
+
+            closeModal.addEventListener("click", () => {
+            modal.close();
+            });
+
+            closeModal2.addEventListener("click", () => {
+            modal.close();
+            });
+
         }
 
         function navigateToLoginPage() {
