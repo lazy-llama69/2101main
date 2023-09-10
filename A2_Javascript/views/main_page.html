@@ -117,21 +117,15 @@
             <div class="kanban-column">
                 <h2 class="column-title">To Do</h2>
                 <ul class="task-list">
-                    <li class="task-item">
-                        Task 1  
-                        <div class="task-buttons">
-                            <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
-                            <button class="delete-button" onclick="navigateToDeleteTask()">❌</button>
-                            <dialog close class="modal" id="modal">
-                                <h2>Delete Task</h2>
-                                <p>Task will be permanently deleted.</p>
-                                <!-- both are temporarily to close bc no task deletion yet -->
-                                <button class="confirm-delete-button">Delete</button> 
-                                <button class="cancel-button">Cancel</button>
-                            </dialog>
-                        </div>
-                    </li>
-                    <!-- Add more tasks here -->
+                    <% for (let i = 0; i < tasks.length; i++) { %>
+                        <li class="task-item">
+                            <%= tasks[i].name %> <!-- Display the task name -->
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask('<%= tasks[i]._id %>')">✏️</button>
+                                <button class="delete-button" onclick="deleteTask('<%= tasks[i]._id %>')">❌</button>
+                            </div>
+                        </li>
+                    <% } %>
                 </ul>
             </div>
             <div class="kanban-column">
