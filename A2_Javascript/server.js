@@ -1,4 +1,6 @@
-let tasks = [];
+let todotasks = [];
+let inprogresstasks = [];
+let donetasks =[];
 
 let express = require("express");
 let ejs = require("ejs");
@@ -77,7 +79,16 @@ app.post("/create_task", function(req, res) {
     // });
 
     // Add the new task to the tasks array
-    tasks.push(newTask);
+    if (taskStatus == 'TO_DO'){
+      todotasks.push(newTask);
+    }
+    else if (taskStatus == 'IN_PROGRESS'){
+      inprogresstasks.push(newTask);
+    }
+    else{
+      donetasks.push(newTask);
+    }
+    
     
     res.redirect("/main_page");
 });
@@ -110,7 +121,7 @@ app.post("/delete_task", function(req, res) {
   console.log(taskIndex)
   var intIndex = parseInt(taskIndex,10)
   console.log(intIndex)
-  tasks.splice(intIndex, 1);
+  todotasks.splice(intIndex, 1);
 
 
 
@@ -127,8 +138,7 @@ app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
   //res.sendFile(path.join(__dirname, "/views/main_page.html"));
-  console.log(tasks)
-  res.render("main_page", { tasks: tasks });
+  res.render("main_page", { todotasks: todotasks,  inprogresstasks: inprogresstasks, donetasks:donetasks});
 });
 
 // Add a new route to display the create_task.html page
