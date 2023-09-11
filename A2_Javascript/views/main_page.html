@@ -154,6 +154,17 @@
         .button:hover {
             opacity: 0.8; /* Slightly reduce opacity on hover */
         }
+
+                /* Highlight the valid drop targets */
+        .kanban-column {
+            border: 2px dashed #3498db; /* Add a dashed border to indicate valid drop target */
+        }
+
+        /* Highlight the dragged task card */
+        .task-item.dragging {
+            background-color: #f0f0f0; /* Change background color while dragging */
+        }
+
     </style>
 </head>
 <body>
@@ -222,6 +233,36 @@
 
     <!-- Adding listeners -->
     <script>
+
+                // Add a dragstart event listener to your task cards
+        document.querySelectorAll(".task-item").forEach(taskCard => {
+            taskCard.addEventListener("dragstart", (event) => {
+                // Set the data being dragged (you can use the task ID)
+                event.dataTransfer.setData("text/plain", event.target.id);
+            });
+        });
+
+        // Add a dragover event listener to allow dropping on valid targets
+        document.querySelectorAll(".kanban-column").forEach(column => {
+            column.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            });
+        });
+
+        // Add a drop event listener to handle the dropped task card
+        document.querySelectorAll(".kanban-column").forEach(column => {
+            column.addEventListener("drop", (event) => {
+                event.preventDefault();
+                // Get the dragged task card's ID
+                const taskId = event.dataTransfer.getData("text/plain");
+                // Find the target column by checking the event's target
+                const targetColumn = event.target.closest(".kanban-column");
+                if (!targetColumn) return; // If not a valid target, do nothing
+                // Move the task card to the target column
+                targetColumn.querySelector("ul.task-list").appendChild(document.getElementById(taskId));
+            });
+        });
+
         function navigateToEditTask() {
             window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
         }
@@ -269,41 +310,6 @@
             window.location.reload();
         }
 
-                // Function to start dragging a task
-        function drag(event) {
-            event.dataTransfer.setData("task-id", event.target.getAttribute("data-task-id"));
-        }
-
-        // Function to allow dropping of a task
-        function allowDrop(event) {
-            event.preventDefault();
-        }
-
-        // Function to handle dropping a task
-        function drop(event) {
-            event.preventDefault();
-            const taskId = event.dataTransfer.getData("task-id");
-            const targetColumn = event.target.closest(".kanban-column");
-            
-            if (targetColumn) {
-                // Determine the target column (To Do, In Progress, or Done)
-                const columnTitle = targetColumn.querySelector(".column-title").textContent;
-                
-                // You can update the task's status in your data store (e.g., update the task's status to match the columnTitle)
-                // Update the task status in your tasks array or database
-                // Example: Update the task status in your tasks array
-                const task = tasks.find(task => task._id === taskId);
-                if (task) {
-                    task.status = columnTitle; // Update the task's status to match the column
-                }
-
-                // Remove the task from its original column (if needed)
-                // Find the task by taskId and remove it from the original column's task list
-
-                // Add the task to the target column's task list
-                targetColumn.querySelector(".task-list").appendChild(document.querySelector(`[data-task-id="${taskId}"]`));
-            }
-        }
 
     </script>
 </body>
