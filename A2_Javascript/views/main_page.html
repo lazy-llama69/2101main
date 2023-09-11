@@ -175,12 +175,12 @@
             <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
         </div>
         <div class="kanban-board">
-            <div class="kanban-column">
+            <div class="kanban-column"ondragover="allowDrop(event)" ondrop="drop(event)" data-task-status="TO_DO">
                 <h2 class="column-title" >To Do</h2>
                 <ul class="task-list" id="to-do-list">
         <!-- Loop through todotasks and generate task cards -->
                     <% for (let i = 0; i < todotasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= todotasks[i]._id %>">
+                        <li class="task-item" draggable="true" id="<%= todotasks[i]._id %>" data-column="TO_DO"ondragstart="drag(event)" index ="<%=i%>">
                             <%= todotasks[i].name %>
                             <div class="task-buttons">
                                 <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'TO_DO')">✏️</button>
@@ -192,11 +192,11 @@
                     <!-- Add more tasks here -->
                 </ul>
             </div>
-            <div class="kanban-column">
+            <div class="kanban-column" data-task-status="IN_PROGRESS" ondragover="allowDrop(event)" ondrop="drop(event)">
                 <h2 class="column-title" >In Progress</h2>
                 <ul class="task-list" id="in-progress-list" >
                     <% for (let i = 0; i < inprogresstasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= inprogresstasks[i]._id %>">
+                        <li class="task-item" draggable="true" id="<%= inprogresstasks[i]._id %>" data-column="IN_PROGRESS" ondragstart="drag(event)" index ="<%=i%>">
                             <%= inprogresstasks[i].name %>
                             <div class="task-buttons">
                                 <button class="edit-button" onclick="navigateToEditTask('<%=i%>','IN_PROGRESS')">✏️</button>
@@ -208,11 +208,11 @@
                     <!-- Tasks in progress -->
                 </ul>
             </div>
-            <div class="kanban-column">
+            <div class="kanban-column" data-task-status="DONE" ondragover="allowDrop(event)" ondrop="drop(event)">
                 <h2 class="column-title">Done</h2>
                 <ul class="task-list" id="done-list" >    
                     <% for (let i = 0; i < donetasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= donetasks[i]._id %>">
+                        <li class="task-item" draggable="true" id="<%= donetasks[i]._id %>" data-column="DONE" ondragstart="drag(event)" index ="<%=i%>">
                             <%= donetasks[i].name %>
                             <div class="task-buttons">
                                 <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'DONE')">✏️</button>
@@ -234,20 +234,20 @@
     <!-- Adding listeners -->
     <script>
 
-                // Add a dragstart event listener to your task cards
-        document.querySelectorAll(".task-item").forEach(taskCard => {
-            taskCard.addEventListener("dragstart", (event) => {
-                // Set the data being dragged (you can use the task ID)
-                event.dataTransfer.setData("text/plain", event.target.id);
-            });
-        });
+        //         // Add a dragstart event listener to your task cards
+        // document.querySelectorAll(".task-item").forEach(taskCard => {
+        //     taskCard.addEventListener("dragstart", (event) => {
+        //         // Set the data being dragged (you can use the task ID)
+        //         event.dataTransfer.setData("text/plain", event.target.id);
+        //     });
+        // });
 
-        // Add a dragover event listener to allow dropping on valid targets
-        document.querySelectorAll(".kanban-column").forEach(column => {
-            column.addEventListener("dragover", (event) => {
-                event.preventDefault();
-            });
-        });
+        // // Add a dragover event listener to allow dropping on valid targets
+        // document.querySelectorAll(".kanban-column").forEach(column => {
+        //     column.addEventListener("dragover", (event) => {
+        //         event.preventDefault();
+        //     });
+        // });
 
         // Add a drop event listener to handle the dropped task card
         // document.querySelectorAll(".kanban-column").forEach(column => {
@@ -263,19 +263,78 @@
         //     });
         // });
         // Add a drop event listener to handle the dropped task card
-        document.querySelectorAll(".kanban-column").forEach(column => {
-            column.addEventListener("drop", (event) => {
-                event.preventDefault();
-                // Get the dragged task card's ID
-                const taskId = event.dataTransfer.getData("text/plain");
-                // Find the target column by checking the event's target
-                const targetColumn = event.target.closest(".kanban-column");
-                if (!targetColumn) return; // If not a valid target, do nothing
-                // Move the task card to the target column
-                const taskCard = document.getElementById(taskId);
-                targetColumn.querySelector("ul.task-list").appendChild(taskCard);
-            });
-        });
+        // document.querySelectorAll(".kanban-column").forEach(column => {
+        //     column.addEventListener("drop", (event) => {
+        //         event.preventDefault();
+        //         // Get the dragged task card's ID
+        //         const taskId = event.dataTransfer.getData("text/plain");
+        //         // Find the target column by checking the event's target
+        //         const targetColumn = event.target.closest(".kanban-column");
+        //         console.log(targetColumn)
+        //         if (!targetColumn) return; // If not a valid target, do nothing
+        //         // Move the task card to the target column
+        //         const taskCard = document.getElementById(taskId);
+        //         targetColumn.querySelector("ul.task-list").appendChild(taskCard);
+
+                
+        //     });
+        // });
+
+
+    // Function to initiate the drag operation
+    function drag(event) {
+        const index = event.target.getAttribute("index");
+        const currentColumn = event.target.getAttribute("data-column");
+        event.dataTransfer.setData("text/plain", index);
+        event.dataTransfer.setData("text/plain-column", currentColumn);
+        event.target.classList.add("dragging"); // Add a CSS class to highlight the dragged item
+    }
+
+    // Function to allow dropping on valid targets
+    function allowDrop(event) {
+        event.preventDefault();
+        const targetColumn = event.target.getAttribute('data-task-status');
+        if (sourceColumn !== targetColumn) {
+            event.dataTransfer.dropEffect = 'move';
+        }
+    }
+
+    // Function to handle the drop event
+    function drop(event) {
+        event.preventDefault();
+        // const taskId = event.dataTransfer.getData('text/plain');
+        // const targetColumn = event.target.getData('text/plain-column');
+        const targetColumn = event.target.getAttribute("data-task-status");
+        const prevColumn =event.dataTransfer.getData("text/plain-column");
+        const index = event.dataTransfer.getData("text/plain");
+
+        const formData = new URLSearchParams();
+            formData.append("target", targetColumn);
+            formData.append("prev", prevColumn);
+            formData.append("index", index);
+        fetch("/move_task", {            
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+        
+    }
+
 
 
         function navigateToEditTask(taskIndex, taskStatus) {

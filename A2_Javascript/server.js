@@ -48,6 +48,7 @@ app.post("/login_page", function(req, res) {
 
 // Require your Task class here
 const Task = require('./models/task'); // Adjust the path as needed
+const { privateEncrypt } = require("crypto");
 
 // Other Express setup code
 
@@ -154,6 +155,45 @@ app.post("/delete_task", function(req, res) {
 
   // Redirect to the main page or wherever you want to go after creating the task
   res.json({ success: true });
+});
+
+app.post("/move_task", function(req, res) {
+  const target = req.body.target;
+  const prev = req.body.prev;
+  const index = req.body.index;
+  console.log(target)
+  console.log(prev)
+  console.log(index)
+  
+  //access the task object
+  if (prev == 'TO_DO'){
+    var task = todotasks[index]
+    todotasks.splice(index, 1);
+  }
+  else if (prev == 'IN_PROGRESS'){
+    var task = inprogresstasks[index]
+    inprogresstasks.splice(index, 1);
+  }
+  else{
+    var task = donetasks[index]
+    donetasks.splice(index, 1);
+  }
+
+  console.log(task)
+  task.status = target
+
+  if (target == 'TO_DO'){
+    todotasks.push(task);
+  }
+  else if (target == 'IN_PROGRESS'){
+    inprogresstasks.push(task);
+  }
+  else{
+    donetasks.push(task);
+  }
+
+  res.json({ success: true });
+
 });
 
 app.get("/main_page", function(req, res) {
