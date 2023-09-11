@@ -78,9 +78,7 @@ app.post("/create_task", function(req, res) {
 
     // Add the new task to the tasks array
     tasks.push(newTask);
-
-    // Redirect to the main page or wherever you want to go after creating the task
-    tasks.push(newTask);
+    
     res.redirect("/main_page");
 });
 
