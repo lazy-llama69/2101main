@@ -118,12 +118,19 @@ app.post("/delete_task", function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const taskIndex = req.body.Index;
-  console.log(taskIndex)
+  const taskStage = req.body.Stage
   var intIndex = parseInt(taskIndex,10)
   console.log(intIndex)
-  todotasks.splice(intIndex, 1);
-
-
+  console.log(taskStage)
+  if (taskStage == 'TO_DO'){
+    todotasks.splice(intIndex, 1);
+  }
+  else if (taskStage == 'IN_PROGRESS'){
+    inprogresstasks.splice(intIndex, 1);
+  }
+  else{
+    donetasks.splice(intIndex, 1);
+  }
 
   // Create a new task object using your Task class
 
