@@ -244,6 +244,10 @@
             window.location.href = "/login_page"; // Navigate to the login_page.html page
         }
 
+        function refreshPage() {
+            window.location.reload();
+        }
+
                 // Function to start dragging a task
         function drag(event) {
             event.dataTransfer.setData("task-id", event.target.getAttribute("data-task-id"));
