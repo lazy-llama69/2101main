@@ -84,7 +84,10 @@
             <select id="taskPriority">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
+                <!-- high is green tag -->
                 <option value="HIGH">High</option>
+                <!-- urgent is red tag -->
+                <option value="URGENT">Urgent</option> 
             </select><br>
 
             <!-- Add Complexity Input -->
@@ -93,13 +96,22 @@
             
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
-            <input type="text" id="taskTag" name="taskTag"><br>
+            <select id="taskTag">
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="API">API</option>
+                <option value="Database">Database</option>
+                <option value="Framework">Framework</option>
+                <option value="Testing">Testing</option>
+                <option value="UI">UI</option>
+                <option value="UX">UX</option>
+            </select><br>
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
             <select id="taskStatus" name="taskStatus">
                 <option value="TO_DO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
+                <option value="IN_PROGRESS">In Progress</option>    
                 <option value="DONE">Done</option>
             </select><br>
 

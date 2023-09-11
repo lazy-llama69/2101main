@@ -1,7 +1,7 @@
 let express = require("express");
 let ejs = require("ejs");
 
-//const mongodb = require("mongodb");
+const mongodb = require("mongodb");
 let path = require("path");
 
 let app = express();
@@ -16,21 +16,24 @@ app.use(express.urlencoded({ extended: true }));
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
-//Configure MongoDB
-//const MongoClient = mongodb.MongoClient;
+// Configure MongoDB
+const MongoClient = mongodb.MongoClient;
 // Connection URL
-//const url = "mongodb://localhost:27017/";
+const url = "mongodb://localhost:27017/";
 
 let db;
-//Connect to mongoDB server
-// MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
+// Connect to mongoDB server
+// MongoClient.connect(url, function (err, client) {
 //   if (err) {
 //     console.log("Err  ", err);
 //   } else {
 //     console.log("Connected successfully to server");
-//     db = client.db("fit2095parcels");
+//     db = client.db("database_1");
 //   }
 // });
+
+// Create an array to store tasks
+let tasks = [];
 
 app.get("/", function (req, res) {
   res.redirect("/login_page");
@@ -62,6 +65,18 @@ app.post("/create_task", function(req, res) {
     // You should implement a function in your Task class to save this new task to your data store.
     // For example, you could save it to a database or an array in memory.
 
+    // Insert newTask into the database (assuming you have a MongoDB collection called 'tasks')
+    // db.collection('database_1').insertOne(newTask, function(err, result) {
+    //   if (err) {
+    //       console.log("Error inserting task into MongoDB:", err);
+    //   } else {
+    //       console.log("Task inserted successfully:", result.insertedId);
+    //   }
+    // });
+
+    // Add the new task to the tasks array
+    tasks.push(newTask);
+
     // Redirect to the main page or wherever you want to go after creating the task
     res.redirect("/main_page");
 });
@@ -90,8 +105,11 @@ app.post("/edit_task", function(req, res) {
 app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
-  res.sendFile(path.join(__dirname, "/views/main_page.html"));
-});
+  // res.sendFile(path.join(__dirname, "/views/main_page.html"));
+
+    // Render the main_page.html template and pass the tasks data
+    res.render("main_page", { tasks });
+  });
 
 // Add a new route to display the create_task.html page
 app.get("/create_task_page", function(req, res) {
