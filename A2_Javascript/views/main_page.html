@@ -39,6 +39,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
+            min-height: 100px;
         }
 
         .column-title {
@@ -163,13 +164,13 @@
             <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
         </div>
         <div class="kanban-board">
-            <div class="kanban-column">
-                <h2 class="column-title">To Do</h2>
-                <ul class="task-list">
-        <!-- Loop through tasks and generate task cards -->
-                    <% for (let i = 0; i < tasks.length; i++) { %>
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2 class="column-title" >To Do</h2>
+                <ul class="task-list" id="to-do-list" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <!-- Loop through todotasks and generate task cards -->
+                    <% for (let i = 0; i < todotasks.length; i++) { %>
                         <li class="task-item">
-                            <%= tasks[i].name %>
+                            <%= todotasks[i].name %>
                             <div class="task-buttons">
                                 <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
                                 <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>')">❌</button>
@@ -180,15 +181,35 @@
                     <!-- Add more tasks here -->
                 </ul>
             </div>
-            <div class="kanban-column">
-                <h2 class="column-title">In Progress</h2>
-                <ul class="task-list" id = "todo-list">
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2 class="column-title" >In Progress</h2>
+                <ul class="task-list" id="in-progress-list" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <% for (let i = 0; i < inprogresstasks.length; i++) { %>
+                        <li class="task-item">
+                            <%= inprogresstasks[i].name %>
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>')">❌</button>
+                            </div>
+                            <!-- Add buttons and dialog as needed -->
+                        </li>
+                    <% } %>
                     <!-- Tasks in progress -->
                 </ul>
             </div>
-            <div class="kanban-column">
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <h2 class="column-title">Done</h2>
-                <ul class="task-list">
+                <ul class="task-list" id="done-list" ondrop="drop(event)" ondragover="allowDrop(event)">    
+                    <% for (let i = 0; i < donetasks.length; i++) { %>
+                        <li class="task-item">
+                            <%= donetasks[i].name %>
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>')">❌</button>
+                            </div>
+                            <!-- Add buttons and dialog as needed -->
+                        </li>
+                    <% } %>
                     <!-- Completed tasks -->
                 </ul>
             </div>
