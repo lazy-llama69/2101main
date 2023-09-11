@@ -84,7 +84,8 @@
             <select id="taskPriority">
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
+                <option value="IMPORTANT">Important</option>
+                <option value="URGENT">Urgent</option>
             </select><br>
 
             <!-- Add Complexity Input -->
@@ -93,7 +94,16 @@
             
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
-            <input type="text" id="taskTag" name="taskTag"><br>
+            <select id="taskTag" name="taskTag">
+                <option value="FRONTEND">Frontend</option>
+                <option value="BACKEND">Backend</option>
+                <option value="API">API</option>
+                <option value="DATABASE">Database</option>
+                <option value="FRAMEWORK">Framework</option>
+                <option value="TESTING">Testing</option>
+                <option value="UI">UI</option>
+                <option value="UX">UX</option>
+            </select><br>
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
@@ -105,7 +115,11 @@
 
             <!-- Add Stage Input -->
             <label for="taskStage">Stage:</label>
-            <input type="text" id="taskStage" name="taskStage"><br>            
+            <select id="taskStage" name="taskStage">
+                <option value="PLANNING">Planning</option>
+                <option value="DEVELOPMENT">Development</option>
+                <option value="TESTING">Testing</option>   
+            </select><br>     
 
             <!-- Submit Button -->
             <button type="submit">Create Task</button>
@@ -124,28 +138,38 @@
             const taskStatus = document.getElementById("taskStatus").value;
             const taskStage = document.getElementById("taskStage").value;
 
-            // Create a JavaScript object with the form data
-            const formData = {
-                taskName,
-                taskComplexity,
-                taskTag,
-                taskPriority,
-                taskDescription,
-                taskStatus,
-                taskStage
-            };
+            // // Create a JavaScript object with the form data
+            // const formData = {
+            //     taskName,
+            //     taskComplexity,
+            //     taskTag,
+            //     taskPriority,
+            //     taskDescription,
+            //     taskStatus,
+            //     taskStage
+            // };
+                // Create a URL-encoded form data string
+            const formData = new URLSearchParams();
+            formData.append("taskName", taskName);
+            formData.append("taskDescription", taskDescription);
+            formData.append("taskPriority", taskPriority);
+            formData.append("taskComplexity", taskComplexity);
+            formData.append("taskTag", taskTag);
+            formData.append("taskStatus", taskStatus);
+            formData.append("taskStage", taskStage);
 
             // Send a POST request with the form data to the server
             fetch("/create_task", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/x-www-form-urlencoded"
                 },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(response => {
                 if (response.ok) {
                     // Redirect to the main page upon successful submission
+                    console.log("Form submission successful");
                     window.location.href = "/main_page";
                 } else {
                     // Handle errors here (e.g., display an error message)

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../server.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Management</title>
@@ -61,6 +62,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center; /* Vertically center task items */
+            color: #000;
         }
 
         .task-item .task-buttons {
@@ -104,6 +106,53 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
+        /* Styles for the modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999; /* Ensure the modal is on top of other elements */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Styles for buttons */
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .confirm-button {
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text */
+        }
+
+        .cancel-button {
+            background-color: #ccc; /* Gray color */
+            color: #000; /* Black text */
+        }
+
+        /* Hover styles for buttons */
+        .button:hover {
+            opacity: 0.8; /* Slightly reduce opacity on hover */
+        }
     </style>
 </head>
 <body>
@@ -117,26 +166,23 @@
             <div class="kanban-column">
                 <h2 class="column-title">To Do</h2>
                 <ul class="task-list">
-                    <li class="task-item">
-                        Task 1  
-                        <div class="task-buttons">
-                            <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
-                            <button class="delete-button" onclick="navigateToDeleteTask()">❌</button>
-                            <dialog close class="modal" id="modal">
-                                <h2>Delete Task</h2>
-                                <p>Task will be permanently deleted.</p>
-                                <!-- both are temporarily to close bc no task deletion yet -->
-                                <button class="confirm-delete-button">Delete</button> 
-                                <button class="cancel-button">Cancel</button>
-                            </dialog>
-                        </div>
-                    </li>
+        <!-- Loop through tasks and generate task cards -->
+                    <% for (let i = 0; i < tasks.length; i++) { %>
+                        <li class="task-item">
+                            <%= tasks[i].name %>
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>')">❌</button>
+                            </div>
+                            <!-- Add buttons and dialog as needed -->
+                        </li>
+                    <% } %>
                     <!-- Add more tasks here -->
                 </ul>
             </div>
             <div class="kanban-column">
                 <h2 class="column-title">In Progress</h2>
-                <ul class="task-list">
+                <ul class="task-list" id = "todo-list">
                     <!-- Tasks in progress -->
                 </ul>
             </div>
@@ -151,6 +197,8 @@
         <button class="add-button" onclick="navigateToCreateTask()">Add Task</button>
     </div>
 
+
+
     <!-- Adding listeners -->
     <script>
         function navigateToEditTask() {
@@ -161,33 +209,44 @@
             window.location.href = "/create_task_page"; // Navigate to the create_task.html page
         }
 
-        function navigateToDeleteTask() {
-            // sometimes:
-            // if I place the code outside the function, it works without clicking twice
-            // when inside - the delete button needs to be clicked twice before triggering the
-            // pop up
-            const modal = document.querySelector("#modal");
-            const openModal = document.querySelector(".delete-button");
-            const closeModal = document.querySelector(".confirm-delete-button");
-            const closeModal2 = document.querySelector(".cancel-button");
+        function navigateToDeleteTask(taskIndex) {
+                // Confirm if the user wants to delete the task
+            if (confirm("Are you sure you want to delete this task?")) {
 
+            const formData = new URLSearchParams();
+            formData.append("Index", taskIndex);
 
-            openModal.addEventListener("click", () => {
-            modal.showModal();
-            });
-
-            closeModal.addEventListener("click", () => {
-            modal.close();
-            });
-
-            closeModal2.addEventListener("click", () => {
-            modal.close();
-            });
-
+            // Send a POST request with the form data to the server
+            fetch("/delete_task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+            }
         }
 
         function navigateToLoginPage() {
             window.location.href = "/login_page"; // Navigate to the login_page.html page
+        }
+
+        // JavaScript function to refresh the page
+        function refreshPage() {
+            window.location.reload();
         }
     </script>
 </body>

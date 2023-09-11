@@ -1,3 +1,5 @@
+let tasks = [];
+
 let express = require("express");
 let ejs = require("ejs");
 
@@ -47,6 +49,7 @@ const Task = require('./models/task'); // Adjust the path as needed
 
 // Handle POST request to create a new task
 app.post("/create_task", function(req, res) {
+    console.log(req.body)
     // Extract data from the form
     const taskName = req.body.taskName;
     const taskDescription = req.body.taskDescription;
@@ -55,6 +58,7 @@ app.post("/create_task", function(req, res) {
     const taskTag = req.body.taskTag;
     const taskStatus = req.body.taskStatus;
     const taskStage = req.body.taskStage;
+    console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage)
 
     // Create a new task object using your Task class
     const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage);
@@ -63,6 +67,7 @@ app.post("/create_task", function(req, res) {
     // For example, you could save it to a database or an array in memory.
 
     // Redirect to the main page or wherever you want to go after creating the task
+    tasks.push(newTask);
     res.redirect("/main_page");
 });
 
@@ -87,10 +92,32 @@ app.post("/edit_task", function(req, res) {
   res.redirect("/main_page");
 });
 
+app.post("/delete_task", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const taskIndex = req.body.Index;
+  console.log(taskIndex)
+  var intIndex = parseInt(taskIndex,10)
+  console.log(intIndex)
+  tasks.splice(intIndex, 1);
+
+
+
+  // Create a new task object using your Task class
+
+  // You should implement a function in your Task class to save this new task to your data store.
+  // For example, you could save it to a database or an array in memory.
+
+  // Redirect to the main page or wherever you want to go after creating the task
+  res.json({ success: true });
+});
+
 app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
-  res.sendFile(path.join(__dirname, "/views/main_page.html"));
+  //res.sendFile(path.join(__dirname, "/views/main_page.html"));
+  console.log(tasks)
+  res.render("main_page", { tasks: tasks });
 });
 
 // Add a new route to display the create_task.html page
