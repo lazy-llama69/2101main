@@ -35,8 +35,6 @@ let db;
 // });
 
 // Create an array to store tasks
-let tasks = [];
-
 app.get("/", function (req, res) {
   res.redirect("/login_page");
   });
