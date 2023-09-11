@@ -183,7 +183,7 @@
                         <li class="task-item" draggable="true" id="<%= todotasks[i]._id %>">
                             <%= todotasks[i].name %>
                             <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'TO_DO')">✏️</button>
                                 <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'TO_DO')">❌</button>
                             </div>
                             <!-- Add buttons and dialog as needed -->
@@ -199,7 +199,7 @@
                         <li class="task-item" draggable="true" id="<%= inprogresstasks[i]._id %>">
                             <%= inprogresstasks[i].name %>
                             <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>','IN_PROGRESS')">✏️</button>
                                 <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>','IN_PROGRESS')">❌</button>
                             </div>
                             <!-- Add buttons and dialog as needed -->
@@ -215,7 +215,7 @@
                         <li class="task-item" draggable="true" id="<%= donetasks[i]._id %>">
                             <%= donetasks[i].name %>
                             <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask()">✏️</button>
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'DONE')">✏️</button>
                                 <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'DONE')">❌</button>
                             </div>
                             <!-- Add buttons and dialog as needed -->
@@ -278,8 +278,32 @@
         });
 
 
-        function navigateToEditTask() {
-            window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
+        function navigateToEditTask(taskIndex, taskStatus) {
+            const formData = new URLSearchParams();
+            formData.append("Index", taskIndex);
+            formData.append("Stage",taskStatus);
+
+            fetch("/edit_task_page",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body : formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+                window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
         }
 
         function navigateToCreateTask() {
