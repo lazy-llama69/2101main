@@ -81,7 +81,7 @@
 
             <!-- Task Priority -->
             <label for="taskPriority">Priority:</label>
-            <select id="taskPriority">
+            <select id="taskPriority" required>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="IMPORTANT">Important</option>
@@ -90,11 +90,11 @@
 
             <!-- Add Complexity Input -->
             <label for="taskComplexity">Complexity:</label>
-            <input type="text" id="taskComplexity" name="taskComplexity"><br>
+            <input type="text" id="taskComplexity" name="taskComplexity" required><br>
             
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
-            <select id="taskTag" name="taskTag">
+            <select id="taskTag" name="taskTag" required>
                 <option value="FRONTEND">Frontend</option>
                 <option value="BACKEND">Backend</option>
                 <option value="API">API</option>
@@ -107,7 +107,7 @@
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
-            <select id="taskStatus" name="taskStatus">
+            <select id="taskStatus" name="taskStatus" required>
                 <option value="TO_DO">To Do</option>
                 <option value="IN_PROGRESS">In Progress</option>    
                 <option value="DONE">Done</option>
@@ -115,7 +115,7 @@
 
             <!-- Add Stage Input -->
             <label for="taskStage">Stage:</label>
-            <select id="taskStage" name="taskStage">
+            <select id="taskStage" name="taskStage" required>
                 <option value="PLANNING">Planning</option>
                 <option value="DEVELOPMENT">Development</option>
                 <option value="TESTING">Testing</option>   

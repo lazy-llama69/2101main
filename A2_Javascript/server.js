@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
+
 // Configure MongoDB
 const MongoClient = mongodb.MongoClient;
 // Connection URL
@@ -47,6 +48,7 @@ app.post("/login_page", function(req, res) {
 
 // Require your Task class here
 const Task = require('./models/task'); // Adjust the path as needed
+const { privateEncrypt } = require("crypto");
 
 // Other Express setup code
 
@@ -95,22 +97,36 @@ app.post("/create_task", function(req, res) {
 
 // Handle POST request to edit task
 app.post("/edit_task", function(req, res) {
+  console.log(req.body)
   // Extract data from the form
-  const taskName = req.body.taskName;
-  const taskDescription = req.body.taskDescription;
-  const taskPriority = req.body.taskPriority;
-  const taskComplexity = req.body.taskComplexity;
-  const taskTag = req.body.taskTag;
-  const taskStatus = req.body.taskStatus;
-  const taskStage = req.body.taskStage;
+  const taskIndex = req.body.Index;
+  const taskStage = req.body.Stage
+  var intIndex = parseInt(taskIndex,10)
+  console.log(intIndex)
+  console.log(taskStage)
+  console.log(todotasks[taskIndex])
+  let responseData;
 
-  // Create a new task object using your Task class
-  const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage);
+  if (taskStage == "TO_DO") {
+    console.log("Passing in")
+    console.log(todotasks[taskIndex])
 
-  // You should implement a function in your Task class to save this new task to your data store.
-  // For example, you could save it to a database or an array in memory.
+    res.render("edit_task",{task: todotasks[taskIndex], index: taskIndex, list: todotasks }); 
+  } else if (taskStage == "IN_PROGRESS") {
+    responseData = { task: inprogresstasks[taskIndex], index: taskIndex, list: inprogresstasks };
+  } else {
+    responseData = { task: donetasks[taskIndex], index: taskIndex, list: donetasks };
+  }
 
-  // Redirect to the main page or wherever you want to go after creating the task
+  // Send the JSON response if requested via AJAX
+
+  //   Render the edit_task template
+  res.render("edit_task", responseData);
+});
+
+// Add a separate route for handling the redirect
+app.post("/edit_task/redirect", function (req, res) {
+  // Redirect to the main page
   res.redirect("/main_page");
 });
 
@@ -139,6 +155,45 @@ app.post("/delete_task", function(req, res) {
 
   // Redirect to the main page or wherever you want to go after creating the task
   res.json({ success: true });
+});
+
+app.post("/move_task", function(req, res) {
+  const target = req.body.target;
+  const prev = req.body.prev;
+  const index = req.body.index;
+  console.log(target)
+  console.log(prev)
+  console.log(index)
+  
+  //access the task object
+  if (prev == 'TO_DO'){
+    var task = todotasks[index]
+    todotasks.splice(index, 1);
+  }
+  else if (prev == 'IN_PROGRESS'){
+    var task = inprogresstasks[index]
+    inprogresstasks.splice(index, 1);
+  }
+  else{
+    var task = donetasks[index]
+    donetasks.splice(index, 1);
+  }
+
+  console.log(task)
+  task.status = target
+
+  if (target == 'TO_DO'){
+    todotasks.push(task);
+  }
+  else if (target == 'IN_PROGRESS'){
+    inprogresstasks.push(task);
+  }
+  else{
+    donetasks.push(task);
+  }
+
+  res.json({ success: true });
+
 });
 
 app.get("/main_page", function(req, res) {
