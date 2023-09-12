@@ -85,15 +85,29 @@
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
             </select><br>
 
             <!-- Add Complexity Input -->
             <label for="taskComplexity">Complexity:</label>
             <input type="text" id="taskComplexity" name="taskComplexity"><br>
             
+            <!-- Add Tag Input
+            <label for="taskTag">Tag:</label>
+            <input type="text" id="taskTag" name="taskTag"><br> -->
+
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
-            <input type="text" id="taskTag" name="taskTag"><br>
+            <select id="taskTag" name="taskTag">
+                <option value="FRONTEND">Frontend</option>
+                <option value="BACKEND">Backend</option>
+                <option value="API">API</option>
+                <option value="DATABASE">Database</option>
+                <option value="FRAMEWORK">Framework</option>
+                <option value="TESTING">Testing</option>
+                <option value="UI">UI</option>
+                <option value="UX">UX</option>
+            </select><br>
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
@@ -103,9 +117,16 @@
                 <option value="DONE">Done</option>
             </select><br>
 
+            <!-- Add Stage Input
+            <label for="taskStage">Stage:</label>
+            <input type="text" id="taskStage" name="taskStage"><br> 
             <!-- Add Stage Input -->
             <label for="taskStage">Stage:</label>
-            <input type="text" id="taskStage" name="taskStage"><br>            
+            <select id="taskStage" name="taskStage">
+                <option value="PLANNING">Planning</option>
+                <option value="DEVELOPMENT">Development</option>
+                <option value="TESTING">Testing</option>   
+            </select><br> 
 
             <!-- Submit Button -->
             <button type="submit">Update Task</button>
@@ -163,9 +184,9 @@
                 description: "description",
                 priority: "MEDIUM",
                 complexity: "High",
-                tag: "tag",
-                status: "IN_PROGRESS",
-                stage: "Sample Stage"
+                tag: "FRONTEND",
+                status: "TO_DO",
+                stage: "PLANNING"
             };
             // JavaScript code to pre-fill the form fields
             document.getElementById("taskName").value = task.name;
