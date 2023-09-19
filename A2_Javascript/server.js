@@ -1,7 +1,10 @@
 const mongodb = require("mongodb");
 const express = require("express");
+let path = require("path");
 const app = express();
 app.listen(8080);
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "html");
 
 app.use(express.urlencoded({ extended: true }));
 
