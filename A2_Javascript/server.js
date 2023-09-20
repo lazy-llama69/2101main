@@ -1,6 +1,3 @@
-let todotasks = [];
-let inprogresstasks = [];
-let donetasks =[];
 let columns = [];
 
 // Require your Column class here
@@ -9,9 +6,9 @@ const Column = require('./models/column');
 const Task = require('./models/task'); // Adjust the path as needed
 const { privateEncrypt } = require("crypto");
 
-
-let express = require("express");
 let ejs = require("ejs");
+let db;
+let collection;
 
 const mongodb = require("mongodb");
 const express = require("express");
@@ -25,30 +22,19 @@ app.use(express.urlencoded({ extended: true }));
 
 const MongoClient = mongodb.MongoClient;
 
-// const url="http://localhost:8080"
-// const url="ftp://localhost:8080"
-
-// const url = "mongodb://89.150.1.66:27017";
-// const url = "mongodb://172.0.0.1:27017";  // Node 18+
-// const url = "mongodb://localhost:27017";
 const url = "mongodb://0.0.0.0:27017/";
 const client = new MongoClient(url);
-let db;
-let collection;
+
 
 async function connectDB() {
 	await client.connect();
 	db = client.db("fit2101");
 	collection = db.collection("asgn");
-	// let result = await collection.insertOne({ name: "Tim", age: 57, address: "Perth" });
+	let result3 = await collection.insertOne({ name: "Bo", age: 57, address: "Perth" });
 	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
 	return "Done";
 }
 
-
-let todotasks = [];
-let inprogresstasks = [];
-let donetasks =[];
 
 // Create an array to store tasks
 app.get("/", function (req, res) {
@@ -200,7 +186,7 @@ app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
   //res.sendFile(path.join(__dirname, "/views/main_page.html"));
-  res.render("main_page", { todotasks: todotasks,  inprogresstasks: inprogresstasks, donetasks:donetasks, columns:columns});
+  res.render("main_page", {columns:columns});
 });
 
 // Add a new route to display the create_task.html page
@@ -233,9 +219,6 @@ app.get("/login_page", function(req, res) {
   res.sendFile(path.join(__dirname, "/views/login_page.html"));
 });
 
-
-
-
 // Handle POST request to create a new task
 app.post("/create_column", function(req, res) {
   console.log(req.body)
@@ -250,3 +233,6 @@ app.post("/create_column", function(req, res) {
   
   //res.redirect("/main_page");
 });
+
+connectDB().then(console.log);
+
