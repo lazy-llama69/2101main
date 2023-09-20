@@ -14,36 +14,41 @@ let express = require("express");
 let ejs = require("ejs");
 
 const mongodb = require("mongodb");
+const express = require("express");
 let path = require("path");
-
-let app = express();
-const PORT_NUMBER = 8080;
-
-app.listen(PORT_NUMBER, () => {
-    console.log(`Listening on port ${PORT_NUMBER}`);
-  });
-  
-app.use(express.urlencoded({ extended: true }));
-
+const app = express();
+app.listen(8080);
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
+app.use(express.urlencoded({ extended: true }));
 
-// Configure MongoDB
 const MongoClient = mongodb.MongoClient;
-// Connection URL
-const url = "mongodb://localhost:27017/";
 
+// const url="http://localhost:8080"
+// const url="ftp://localhost:8080"
+
+// const url = "mongodb://89.150.1.66:27017";
+// const url = "mongodb://172.0.0.1:27017";  // Node 18+
+// const url = "mongodb://localhost:27017";
+const url = "mongodb://0.0.0.0:27017/";
+const client = new MongoClient(url);
 let db;
-// Connect to mongoDB server
-// MongoClient.connect(url, function (err, client) {
-//   if (err) {
-//     console.log("Err  ", err);
-//   } else {
-//     console.log("Connected successfully to server");
-//     db = client.db("database_1");
-//   }
-// });
+let collection;
+
+async function connectDB() {
+	await client.connect();
+	db = client.db("fit2101");
+	collection = db.collection("asgn");
+	// let result = await collection.insertOne({ name: "Tim", age: 57, address: "Perth" });
+	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
+	return "Done";
+}
+
+
+let todotasks = [];
+let inprogresstasks = [];
+let donetasks =[];
 
 // Create an array to store tasks
 app.get("/", function (req, res) {
@@ -129,8 +134,6 @@ app.post("/edit_task", function(req, res) {
   } else {
     responseData = { task: donetasks[taskIndex], index: taskIndex, list: donetasks };
   }
-
-  // Send the JSON response if requested via AJAX
 
   //   Render the edit_task template
   //res.render("edit_task", responseData);
