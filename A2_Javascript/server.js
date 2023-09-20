@@ -1,3 +1,15 @@
+let columns = [];
+
+// Require your Column class here
+const Column = require('./models/column'); 
+// Require your Task class here
+const Task = require('./models/task'); // Adjust the path as needed
+const { privateEncrypt } = require("crypto");
+
+let ejs = require("ejs");
+let db;
+let collection;
+
 const mongodb = require("mongodb");
 const express = require("express");
 let path = require("path");
@@ -10,30 +22,19 @@ app.use(express.urlencoded({ extended: true }));
 
 const MongoClient = mongodb.MongoClient;
 
-// const url="http://localhost:8080"
-// const url="ftp://localhost:8080"
-
-// const url = "mongodb://89.150.1.66:27017";
-// const url = "mongodb://172.0.0.1:27017";  // Node 18+
-// const url = "mongodb://localhost:27017";
 const url = "mongodb://0.0.0.0:27017/";
 const client = new MongoClient(url);
-let db;
-let collection;
+
 
 async function connectDB() {
 	await client.connect();
 	db = client.db("fit2101");
 	collection = db.collection("asgn");
-	// let result = await collection.insertOne({ name: "Tim", age: 57, address: "Perth" });
+	let result3 = await collection.insertOne({ name: "Bo", age: 57, address: "Perth" });
 	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
 	return "Done";
 }
 
-
-let todotasks = [];
-let inprogresstasks = [];
-let donetasks =[];
 
 // Create an array to store tasks
 app.get("/", function (req, res) {
@@ -44,9 +45,9 @@ app.post("/login_page", function(req, res) {
     res.redirect("main_page");
 });
 
-// Require your Task class here
-const Task = require('./models/task'); // Adjust the path as needed
-const { privateEncrypt } = require("crypto");
+
+
+
 
 // Other Express setup code
 
@@ -79,15 +80,19 @@ app.post("/create_task", function(req, res) {
     // });
 
     // Add the new task to the tasks array
-    if (taskStatus == 'TO_DO'){
-      todotasks.push(newTask);
-    }
-    else if (taskStatus == 'IN_PROGRESS'){
-      inprogresstasks.push(newTask);
-    }
-    else{
-      donetasks.push(newTask);
-    }
+    // if (taskStatus == 'TO_DO'){
+    //   todotasks.push(newTask);
+    // }
+    // else if (taskStatus == 'IN_PROGRESS'){
+    //   inprogresstasks.push(newTask);
+    // }
+    // else{
+    //   donetasks.push(newTask);
+    //}
+
+    columns[parseInt(taskStatus)].tasks.push(newTask);
+    console.log("here")
+    console.log(columns[parseInt(taskStatus)].tasks);
     
     
     res.redirect("/main_page");
@@ -117,7 +122,7 @@ app.post("/edit_task", function(req, res) {
   }
 
   //   Render the edit_task template
-  res.render("edit_task", responseData);
+  //res.render("edit_task", responseData);
 });
 
 // Add a separate route for handling the redirect
@@ -129,20 +134,11 @@ app.post("/edit_task/redirect", function (req, res) {
 app.post("/delete_task", function(req, res) {
   console.log(req.body)
   // Extract data from the form
-  const taskIndex = req.body.Index;
-  const taskStage = req.body.Stage
+  const columnIndex = req.body.columnIndex;
+  const taskIndex = req.body.taskIndex
   var intIndex = parseInt(taskIndex,10)
-  console.log(intIndex)
-  console.log(taskStage)
-  if (taskStage == 'TO_DO'){
-    todotasks.splice(intIndex, 1);
-  }
-  else if (taskStage == 'IN_PROGRESS'){
-    inprogresstasks.splice(intIndex, 1);
-  }
-  else{
-    donetasks.splice(intIndex, 1);
-  }
+
+  columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)
 
   // Create a new task object using your Task class
 
@@ -156,37 +152,31 @@ app.post("/delete_task", function(req, res) {
 app.post("/move_task", function(req, res) {
   const target = req.body.target;
   const prev = req.body.prev;
-  const index = req.body.index;
+  const index = req.body.itemindex;
+  const targetColumnIndex = req.body.targetColumnIndex;
+  const prevColumnIndex = req.body.prevColumnIndex;
   console.log(target)
   console.log(prev)
   console.log(index)
-  
-  //access the task object
-  if (prev == 'TO_DO'){
-    var task = todotasks[index]
-    todotasks.splice(index, 1);
-  }
-  else if (prev == 'IN_PROGRESS'){
-    var task = inprogresstasks[index]
-    inprogresstasks.splice(index, 1);
-  }
-  else{
-    var task = donetasks[index]
-    donetasks.splice(index, 1);
-  }
+  console.log(targetColumnIndex)
+  console.log(prevColumnIndex)
 
-  console.log(task)
-  task.status = target
+  console.log("ebfore")
+  console.log(columns)
+  console.log(columns[parseInt(prevColumnIndex)].tasks)
 
-  if (target == 'TO_DO'){
-    todotasks.push(task);
-  }
-  else if (target == 'IN_PROGRESS'){
-    inprogresstasks.push(task);
-  }
-  else{
-    donetasks.push(task);
-  }
+  var task = columns[parseInt(prevColumnIndex)].tasks.splice(parseInt(index),1)[0]
+
+  console.log("status before")
+  console.log(task.status)
+  task.status = targetColumnIndex
+  console.log("status changed")
+  console.log(task.status)
+
+  columns[parseInt(targetColumnIndex)].tasks.push(task)
+  console.log("done")
+  console.log(columns)
+  console.log(columns[parseInt(prevColumnIndex)].tasks)
 
   res.json({ success: true });
 
@@ -196,17 +186,27 @@ app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
   //res.sendFile(path.join(__dirname, "/views/main_page.html"));
-  res.render("main_page", { todotasks: todotasks,  inprogresstasks: inprogresstasks, donetasks:donetasks});
+  res.render("main_page", {columns:columns});
 });
 
 // Add a new route to display the create_task.html page
 app.get("/create_task_page", function(req, res) {
-  res.sendFile(path.join(__dirname, "/views/create_task.html"));
+  res.render("create_task", {columns:columns});
 });
 
 // Add a new route to display the edit_task.html page
 app.get("/edit_task_page", function(req, res) {
-  res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+  //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+
+  // Get the values of the parameters
+  const columnIndex = req.query.param1;
+  const taskIndex = req.query.param2;
+  console.log(columnIndex)
+  console.log(taskIndex)
+
+  var task = columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
+  console.log(task)
+  res.render("edit_task", {task:task, columns:columns});
 });
 
 // Add a new route to display the delete_task.html page
@@ -219,6 +219,20 @@ app.get("/login_page", function(req, res) {
   res.sendFile(path.join(__dirname, "/views/login_page.html"));
 });
 
+// Handle POST request to create a new task
+app.post("/create_column", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const columnName = req.body.columnName;
+  console.log(columnName);
 
+  // Create a new task object using your Task class
+  const newColumn = new Column(columnName);
+  columns.push(newColumn);
+  console.log(columns)
+  
+  //res.redirect("/main_page");
+});
 
 connectDB().then(console.log);
+

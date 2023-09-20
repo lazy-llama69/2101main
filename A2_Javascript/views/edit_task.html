@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Task</title>
+    <!-- <script src="server.js"></script> -->
 
     <style>
         body {
@@ -73,11 +74,11 @@
         <form id="editTaskForm">
             <!-- Task Name -->
             <label for="taskName">Task Name:</label>
-            <input type="text" id="taskName" required><br>
+            <input type="text" id="taskName" value="<%= task.name %>"required><br>
 
             <!-- Task Description -->
             <label for="taskDescription">Description:</label>
-            <textarea id="taskDescription" rows="4" required></textarea><br>
+            <textarea id="taskDescription" rows="4" required><%= task.description %></textarea><br>
 
             <!-- Task Priority -->
             <label for="taskPriority">Priority:</label>
@@ -112,9 +113,9 @@
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
             <select id="taskStatus" name="taskStatus">
-                <option value="TO_DO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="DONE">Done</option>
+                <% for (let i = 0; i < columns.length; i++) { %>
+                    <option value='<%= i %>'><%= columns[i].name %></option>
+                <% } %>
             </select><br>
 
             <!-- Add Stage Input
@@ -133,6 +134,7 @@
         </form>
     </div>
     <script>
+        window.addEventListener("DOMContentLoaded", populateForm);
         document.getElementById("editTaskForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
             
@@ -178,25 +180,45 @@
                 console.error("Error:", error);
             });
         });
-        document.addEventListener("DOMContentLoaded", function() {
-            var task = {
-                name: "Task 1",
-                description: "description",
-                priority: "MEDIUM",
-                complexity: "1",
-                tag: "FRONTEND",
-                status: "TO_DO",
-                stage: "PLANNING"
-            };
-            // JavaScript code to pre-fill the form fields
-            document.getElementById("taskName").value = task.name;
-            document.getElementById("taskDescription").value = task.description;
-            document.getElementById("taskPriority").value = task.priority;
-            document.getElementById("taskComplexity").value = task.complexity;
-            document.getElementById("taskTag").value = task.tag;
-            document.getElementById("taskStatus").value = task.status;
-            document.getElementById("taskStage").value = task.stage;
-        });
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     var task = {
+        //         name: "Task 1",
+        //         description: "description",
+        //         priority: "MEDIUM",
+        //         complexity: "1",
+        //         tag: "FRONTEND",
+        //         status: "TO_DO",
+        //         stage: "PLANNING"
+        //     };
+        //     // JavaScript code to pre-fill the form fields
+        //     document.getElementById("taskName").value = task.name;
+        //     document.getElementById("taskDescription").value = task.description;
+        //     document.getElementById("taskPriority").value = task.priority;
+        //     document.getElementById("taskComplexity").value = task.complexity;
+        //     document.getElementById("taskTag").value = task.tag;
+        //     document.getElementById("taskStatus").value = task.status;
+        //     document.getElementById("taskStage").value = task.stage;
+        //});
+        // function populateForm() {
+        //     const taskNameInput = document.getElementById("taskName");
+        //     const taskDescriptionTextarea = document.getElementById("taskDescription");
+        //     const taskPrioritySelect = document.getElementById("taskPriority");
+        //     const taskComplexityInput = document.getElementById("taskComplexity");
+        //     const taskTagSelect = document.getElementById("taskTag");
+        //     const taskStatusSelect = document.getElementById("taskStatus");
+        //     const taskStageSelect = document.getElementById("taskStage");
+
+        //     taskNameInput.value = task.name;
+        //     taskDescriptionTextarea.value = task.description;
+        //     taskPrioritySelect.value = task.priority;
+        //     taskComplexityInput.value = task.complexity;
+        //     taskTagSelect.value = task.tag;
+        //     taskStatusSelect.value = task.status;
+        //     taskStageSelect.value = task.stage;
+        // }
+
+        // Call the populateForm function when the page loads
+        
     </script>
 </body>
 </html>
