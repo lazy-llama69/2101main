@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../server.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Management</title>
@@ -38,6 +39,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
+            min-height: 100px;
         }
 
         .column-title {
@@ -61,6 +63,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center; /* Vertically center task items */
+            color: #000;
         }
 
         .task-item .task-buttons {
@@ -104,6 +107,64 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
+        /* Styles for the modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999; /* Ensure the modal is on top of other elements */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Styles for buttons */
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .confirm-button {
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text */
+        }
+
+        .cancel-button {
+            background-color: #ccc; /* Gray color */
+            color: #000; /* Black text */
+        }
+
+        /* Hover styles for buttons */
+        .button:hover {
+            opacity: 0.8; /* Slightly reduce opacity on hover */
+        }
+
+                /* Highlight the valid drop targets */
+        .kanban-column {
+            border: 2px dashed #3498db; /* Add a dashed border to indicate valid drop target */
+        }
+
+        /* Highlight the dragged task card */
+        .task-item.dragging {
+            background-color: #f0f0f0; /* Change background color while dragging */
+        }
+
     </style>
 </head>
 <body>
@@ -114,29 +175,52 @@
             <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
         </div>
         <div class="kanban-board">
-            <div class="kanban-column">
-                <h2 class="column-title">To Do</h2>
-                <ul class="task-list">
-                    <% for (let i = 0; i < tasks.length; i++) { %>
-                        <li class="task-item">
-                            <%= tasks[i].name %> <!-- Display the task name -->
+            <div class="kanban-column"ondragover="allowDrop(event)" ondrop="drop(event)" data-task-status="TO_DO">
+                <h2 class="column-title" >To Do</h2>
+                <ul class="task-list" id="to-do-list">
+        <!-- Loop through todotasks and generate task cards -->
+                    <% for (let i = 0; i < todotasks.length; i++) { %>
+                        <li class="task-item" draggable="true" id="<%= todotasks[i]._id %>" data-column="TO_DO"ondragstart="drag(event)" index ="<%=i%>">
+                            <%= todotasks[i].name %>
                             <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask('<%= tasks[i]._id %>')">✏️</button>
-                                <button class="delete-button" onclick="deleteTask('<%= tasks[i]._id %>')">❌</button>
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'TO_DO')">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'TO_DO')">❌</button>
                             </div>
+                            <!-- Add buttons and dialog as needed -->
                         </li>
                     <% } %>
+                    <!-- Add more tasks here -->
                 </ul>
             </div>
-            <div class="kanban-column">
-                <h2 class="column-title">In Progress</h2>
-                <ul class="task-list">
+            <div class="kanban-column" data-task-status="IN_PROGRESS" ondragover="allowDrop(event)" ondrop="drop(event)">
+                <h2 class="column-title" >In Progress</h2>
+                <ul class="task-list" id="in-progress-list" >
+                    <% for (let i = 0; i < inprogresstasks.length; i++) { %>
+                        <li class="task-item" draggable="true" id="<%= inprogresstasks[i]._id %>" data-column="IN_PROGRESS" ondragstart="drag(event)" index ="<%=i%>">
+                            <%= inprogresstasks[i].name %>
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>','IN_PROGRESS')">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>','IN_PROGRESS')">❌</button>
+                            </div>
+                            <!-- Add buttons and dialog as needed -->
+                        </li>
+                    <% } %>
                     <!-- Tasks in progress -->
                 </ul>
             </div>
-            <div class="kanban-column">
+            <div class="kanban-column" data-task-status="DONE" ondragover="allowDrop(event)" ondrop="drop(event)">
                 <h2 class="column-title">Done</h2>
-                <ul class="task-list">
+                <ul class="task-list" id="done-list" >    
+                    <% for (let i = 0; i < donetasks.length; i++) { %>
+                        <li class="task-item" draggable="true" id="<%= donetasks[i]._id %>" data-column="DONE" ondragstart="drag(event)" index ="<%=i%>">
+                            <%= donetasks[i].name %>
+                            <div class="task-buttons">
+                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'DONE')">✏️</button>
+                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'DONE')">❌</button>
+                            </div>
+                            <!-- Add buttons and dialog as needed -->
+                        </li>
+                    <% } %>
                     <!-- Completed tasks -->
                 </ul>
             </div>
@@ -145,44 +229,188 @@
         <button class="add-button" onclick="navigateToCreateTask()">Add Task</button>
     </div>
 
+
+
     <!-- Adding listeners -->
     <script>
-        function navigateToEditTask() {
-            window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
+
+        //         // Add a dragstart event listener to your task cards
+        // document.querySelectorAll(".task-item").forEach(taskCard => {
+        //     taskCard.addEventListener("dragstart", (event) => {
+        //         // Set the data being dragged (you can use the task ID)
+        //         event.dataTransfer.setData("text/plain", event.target.id);
+        //     });
+        // });
+
+        // // Add a dragover event listener to allow dropping on valid targets
+        // document.querySelectorAll(".kanban-column").forEach(column => {
+        //     column.addEventListener("dragover", (event) => {
+        //         event.preventDefault();
+        //     });
+        // });
+
+        // Add a drop event listener to handle the dropped task card
+        // document.querySelectorAll(".kanban-column").forEach(column => {
+        //     column.addEventListener("drop", (event) => {
+        //         event.preventDefault();
+        //         // Get the dragged task card's ID
+        //         const taskId = event.dataTransfer.getData("text/plain");
+        //         // Find the target column by checking the event's target
+        //         const targetColumn = event.target.closest(".kanban-column");
+        //         if (!targetColumn) return; // If not a valid target, do nothing
+        //         // Move the task card to the target column
+        //         targetColumn.querySelector("ul.task-list").appendChild(document.getElementById(taskId));
+        //     });
+        // });
+        // Add a drop event listener to handle the dropped task card
+        // document.querySelectorAll(".kanban-column").forEach(column => {
+        //     column.addEventListener("drop", (event) => {
+        //         event.preventDefault();
+        //         // Get the dragged task card's ID
+        //         const taskId = event.dataTransfer.getData("text/plain");
+        //         // Find the target column by checking the event's target
+        //         const targetColumn = event.target.closest(".kanban-column");
+        //         console.log(targetColumn)
+        //         if (!targetColumn) return; // If not a valid target, do nothing
+        //         // Move the task card to the target column
+        //         const taskCard = document.getElementById(taskId);
+        //         targetColumn.querySelector("ul.task-list").appendChild(taskCard);
+
+                
+        //     });
+        // });
+
+
+    // Function to initiate the drag operation
+    function drag(event) {
+        const index = event.target.getAttribute("index");
+        const currentColumn = event.target.getAttribute("data-column");
+        event.dataTransfer.setData("text/plain", index);
+        event.dataTransfer.setData("text/plain-column", currentColumn);
+        event.target.classList.add("dragging"); // Add a CSS class to highlight the dragged item
+    }
+
+    // Function to allow dropping on valid targets
+    function allowDrop(event) {
+        event.preventDefault();
+        const targetColumn = event.target.getAttribute('data-task-status');
+        if (sourceColumn !== targetColumn) {
+            event.dataTransfer.dropEffect = 'move';
+        }
+    }
+
+    // Function to handle the drop event
+    function drop(event) {
+        event.preventDefault();
+        // const taskId = event.dataTransfer.getData('text/plain');
+        // const targetColumn = event.target.getData('text/plain-column');
+        const targetColumn = event.target.getAttribute("data-task-status");
+        const prevColumn =event.dataTransfer.getData("text/plain-column");
+        const index = event.dataTransfer.getData("text/plain");
+
+        const formData = new URLSearchParams();
+            formData.append("target", targetColumn);
+            formData.append("prev", prevColumn);
+            formData.append("index", index);
+        fetch("/move_task", {            
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+        
+    }
+
+
+
+        function navigateToEditTask(taskIndex, taskStatus) {
+            const formData = new URLSearchParams();
+            formData.append("Index", taskIndex);
+            formData.append("Stage",taskStatus);
+
+            fetch("/edit_task_page",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body : formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+                window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
         }
 
         function navigateToCreateTask() {
             window.location.href = "/create_task_page"; // Navigate to the create_task.html page
         }
 
-        function navigateToDeleteTask() {
-            // sometimes:
-            // if I place the code outside the function, it works without clicking twice
-            // when inside - the delete button needs to be clicked twice before triggering the
-            // pop up
-            const modal = document.querySelector("#modal");
-            const openModal = document.querySelector(".delete-button");
-            const closeModal = document.querySelector(".confirm-delete-button");
-            const closeModal2 = document.querySelector(".cancel-button");
+        function navigateToDeleteTask(taskIndex, taskStatus) {
+                // Confirm if the user wants to delete the task
+            if (confirm("Are you sure you want to delete this task?")) {
 
+            const formData = new URLSearchParams();
+            formData.append("Index", taskIndex);
+            formData.append("Stage",taskStatus)
 
-            openModal.addEventListener("click", () => {
-            modal.showModal();
-            });
-
-            closeModal.addEventListener("click", () => {
-            modal.close();
-            });
-
-            closeModal2.addEventListener("click", () => {
-            modal.close();
-            });
-
+            // Send a POST request with the form data to the server
+            fetch("/delete_task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+            }
         }
 
         function navigateToLoginPage() {
             window.location.href = "/login_page"; // Navigate to the login_page.html page
         }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+
     </script>
 </body>
 </html>
+

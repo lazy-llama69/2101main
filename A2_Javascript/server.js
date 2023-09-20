@@ -1,40 +1,41 @@
-let express = require("express");
-let ejs = require("ejs");
-
 const mongodb = require("mongodb");
+const express = require("express");
 let path = require("path");
-
-let app = express();
-const PORT_NUMBER = 8080;
-
-app.listen(PORT_NUMBER, () => {
-    console.log(`Listening on port ${PORT_NUMBER}`);
-  });
-  
-app.use(express.urlencoded({ extended: true }));
-
+const app = express();
+app.listen(8080);
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
-// Configure MongoDB
-const MongoClient = mongodb.MongoClient;
-// Connection URL
-const url = "mongodb://localhost:27017/";
+app.use(express.urlencoded({ extended: true }));
 
+const MongoClient = mongodb.MongoClient;
+
+// const url="http://localhost:8080"
+// const url="ftp://localhost:8080"
+
+// const url = "mongodb://89.150.1.66:27017";
+// const url = "mongodb://172.0.0.1:27017";  // Node 18+
+// const url = "mongodb://localhost:27017";
+const url = "mongodb://0.0.0.0:27017/";
+const client = new MongoClient(url);
 let db;
-// Connect to mongoDB server
-// MongoClient.connect(url, function (err, client) {
-//   if (err) {
-//     console.log("Err  ", err);
-//   } else {
-//     console.log("Connected successfully to server");
-//     db = client.db("database_1");
-//   }
-// });
+let collection;
+
+async function connectDB() {
+	await client.connect();
+	db = client.db("fit2101");
+	collection = db.collection("asgn");
+	// let result = await collection.insertOne({ name: "Tim", age: 57, address: "Perth" });
+	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
+	return "Done";
+}
+
+
+let todotasks = [];
+let inprogresstasks = [];
+let donetasks =[];
 
 // Create an array to store tasks
-let tasks = [];
-
 app.get("/", function (req, res) {
   res.redirect("/login_page");
   });
@@ -45,11 +46,13 @@ app.post("/login_page", function(req, res) {
 
 // Require your Task class here
 const Task = require('./models/task'); // Adjust the path as needed
+const { privateEncrypt } = require("crypto");
 
 // Other Express setup code
 
 // Handle POST request to create a new task
 app.post("/create_task", function(req, res) {
+    console.log(req.body)
     // Extract data from the form
     const taskName = req.body.taskName;
     const taskDescription = req.body.taskDescription;
@@ -58,6 +61,7 @@ app.post("/create_task", function(req, res) {
     const taskTag = req.body.taskTag;
     const taskStatus = req.body.taskStatus;
     const taskStage = req.body.taskStage;
+    console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage)
 
     // Create a new task object using your Task class
     const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage);
@@ -75,41 +79,125 @@ app.post("/create_task", function(req, res) {
     // });
 
     // Add the new task to the tasks array
-    tasks.push(newTask);
-
-    // Redirect to the main page or wherever you want to go after creating the task
+    if (taskStatus == 'TO_DO'){
+      todotasks.push(newTask);
+    }
+    else if (taskStatus == 'IN_PROGRESS'){
+      inprogresstasks.push(newTask);
+    }
+    else{
+      donetasks.push(newTask);
+    }
+    
+    
     res.redirect("/main_page");
 });
 
 // Handle POST request to edit task
 app.post("/edit_task", function(req, res) {
+  console.log(req.body)
   // Extract data from the form
-  const taskName = req.body.taskName;
-  const taskDescription = req.body.taskDescription;
-  const taskPriority = req.body.taskPriority;
-  const taskComplexity = req.body.taskComplexity;
-  const taskTag = req.body.taskTag;
-  const taskStatus = req.body.taskStatus;
-  const taskStage = req.body.taskStage;
+  const taskIndex = req.body.Index;
+  const taskStage = req.body.Stage
+  var intIndex = parseInt(taskIndex,10)
+  console.log(intIndex)
+  console.log(taskStage)
+  console.log(todotasks[taskIndex])
+  let responseData;
+
+  if (taskStage == "TO_DO") {
+    console.log("Passing in")
+    console.log(todotasks[taskIndex])
+
+    res.render("edit_task",{task: todotasks[taskIndex], index: taskIndex, list: todotasks }); 
+  } else if (taskStage == "IN_PROGRESS") {
+    responseData = { task: inprogresstasks[taskIndex], index: taskIndex, list: inprogresstasks };
+  } else {
+    responseData = { task: donetasks[taskIndex], index: taskIndex, list: donetasks };
+  }
+
+  //   Render the edit_task template
+  res.render("edit_task", responseData);
+});
+
+// Add a separate route for handling the redirect
+app.post("/edit_task/redirect", function (req, res) {
+  // Redirect to the main page
+  res.redirect("/main_page");
+});
+
+app.post("/delete_task", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const taskIndex = req.body.Index;
+  const taskStage = req.body.Stage
+  var intIndex = parseInt(taskIndex,10)
+  console.log(intIndex)
+  console.log(taskStage)
+  if (taskStage == 'TO_DO'){
+    todotasks.splice(intIndex, 1);
+  }
+  else if (taskStage == 'IN_PROGRESS'){
+    inprogresstasks.splice(intIndex, 1);
+  }
+  else{
+    donetasks.splice(intIndex, 1);
+  }
 
   // Create a new task object using your Task class
-  const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage);
 
   // You should implement a function in your Task class to save this new task to your data store.
   // For example, you could save it to a database or an array in memory.
 
   // Redirect to the main page or wherever you want to go after creating the task
-  res.redirect("/main_page");
+  res.json({ success: true });
+});
+
+app.post("/move_task", function(req, res) {
+  const target = req.body.target;
+  const prev = req.body.prev;
+  const index = req.body.index;
+  console.log(target)
+  console.log(prev)
+  console.log(index)
+  
+  //access the task object
+  if (prev == 'TO_DO'){
+    var task = todotasks[index]
+    todotasks.splice(index, 1);
+  }
+  else if (prev == 'IN_PROGRESS'){
+    var task = inprogresstasks[index]
+    inprogresstasks.splice(index, 1);
+  }
+  else{
+    var task = donetasks[index]
+    donetasks.splice(index, 1);
+  }
+
+  console.log(task)
+  task.status = target
+
+  if (target == 'TO_DO'){
+    todotasks.push(task);
+  }
+  else if (target == 'IN_PROGRESS'){
+    inprogresstasks.push(task);
+  }
+  else{
+    donetasks.push(task);
+  }
+
+  res.json({ success: true });
+
 });
 
 app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
-  // res.sendFile(path.join(__dirname, "/views/main_page.html"));
-
-    // Render the main_page.html template and pass the tasks data
-    res.render("main_page", { tasks });
-  });
+  //res.sendFile(path.join(__dirname, "/views/main_page.html"));
+  res.render("main_page", { todotasks: todotasks,  inprogresstasks: inprogresstasks, donetasks:donetasks});
+});
 
 // Add a new route to display the create_task.html page
 app.get("/create_task_page", function(req, res) {
@@ -130,3 +218,7 @@ app.get("/delete_task_page", function(req, res) {
 app.get("/login_page", function(req, res) {
   res.sendFile(path.join(__dirname, "/views/login_page.html"));
 });
+
+
+
+connectDB().then(console.log);

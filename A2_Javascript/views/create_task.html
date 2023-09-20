@@ -81,35 +81,33 @@
 
             <!-- Task Priority -->
             <label for="taskPriority">Priority:</label>
-            <select id="taskPriority">
+            <select id="taskPriority" required>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
-                <!-- high is green tag -->
-                <option value="HIGH">High</option>
-                <!-- urgent is red tag -->
-                <option value="URGENT">Urgent</option> 
+                <option value="IMPORTANT">Important</option>
+                <option value="URGENT">Urgent</option>
             </select><br>
 
             <!-- Add Complexity Input -->
             <label for="taskComplexity">Complexity:</label>
-            <input type="text" id="taskComplexity" name="taskComplexity"><br>
+            <input type="text" id="taskComplexity" name="taskComplexity" required><br>
             
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
-            <select id="taskTag">
-                <option value="Frontend">Frontend</option>
-                <option value="Backend">Backend</option>
+            <select id="taskTag" name="taskTag" required>
+                <option value="FRONTEND">Frontend</option>
+                <option value="BACKEND">Backend</option>
                 <option value="API">API</option>
-                <option value="Database">Database</option>
-                <option value="Framework">Framework</option>
-                <option value="Testing">Testing</option>
+                <option value="DATABASE">Database</option>
+                <option value="FRAMEWORK">Framework</option>
+                <option value="TESTING">Testing</option>
                 <option value="UI">UI</option>
                 <option value="UX">UX</option>
             </select><br>
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
-            <select id="taskStatus" name="taskStatus">
+            <select id="taskStatus" name="taskStatus" required>
                 <option value="TO_DO">To Do</option>
                 <option value="IN_PROGRESS">In Progress</option>    
                 <option value="DONE">Done</option>
@@ -117,7 +115,11 @@
 
             <!-- Add Stage Input -->
             <label for="taskStage">Stage:</label>
-            <input type="text" id="taskStage" name="taskStage"><br>            
+            <select id="taskStage" name="taskStage" required>
+                <option value="PLANNING">Planning</option>
+                <option value="DEVELOPMENT">Development</option>
+                <option value="TESTING">Testing</option>   
+            </select><br>     
 
             <!-- Submit Button -->
             <button type="submit">Create Task</button>
@@ -136,28 +138,38 @@
             const taskStatus = document.getElementById("taskStatus").value;
             const taskStage = document.getElementById("taskStage").value;
 
-            // Create a JavaScript object with the form data
-            const formData = {
-                taskName,
-                taskComplexity,
-                taskTag,
-                taskPriority,
-                taskDescription,
-                taskStatus,
-                taskStage
-            };
+            // // Create a JavaScript object with the form data
+            // const formData = {
+            //     taskName,
+            //     taskComplexity,
+            //     taskTag,
+            //     taskPriority,
+            //     taskDescription,
+            //     taskStatus,
+            //     taskStage
+            // };
+                // Create a URL-encoded form data string
+            const formData = new URLSearchParams();
+            formData.append("taskName", taskName);
+            formData.append("taskDescription", taskDescription);
+            formData.append("taskPriority", taskPriority);
+            formData.append("taskComplexity", taskComplexity);
+            formData.append("taskTag", taskTag);
+            formData.append("taskStatus", taskStatus);
+            formData.append("taskStage", taskStage);
 
             // Send a POST request with the form data to the server
             fetch("/create_task", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/x-www-form-urlencoded"
                 },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(response => {
                 if (response.ok) {
                     // Redirect to the main page upon successful submission
+                    console.log("Form submission successful");
                     window.location.href = "/main_page";
                 } else {
                     // Handle errors here (e.g., display an error message)
