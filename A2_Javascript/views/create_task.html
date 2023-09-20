@@ -108,9 +108,9 @@
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
             <select id="taskStatus" name="taskStatus" required>
-                <option value="TO_DO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>    
-                <option value="DONE">Done</option>
+                <% for (let i = 0; i < columns.length; i++) { %>
+                    <option value='<%= i %>'><%= columns[i].name %></option>
+                <% } %>
             </select><br>
 
             <!-- Add Stage Input -->
