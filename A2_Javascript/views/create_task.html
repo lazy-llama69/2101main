@@ -59,6 +59,23 @@
         button[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        .stage-label {
+            margin-top: 20px; /* Adjust this value as needed */
+        }
+
+        .exit-button {
+        background-color: #d9534f; /* Red color for exit button */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px; /* Adjust the top position as needed */
+        left: 10px; /* Adjust the left position as needed */
+    }
+
     </style>
 
     <!-- You can include your external JavaScript file here as well -->
@@ -69,6 +86,7 @@
 
     <!-- Outer Box (Container) -->
     <div class="container">
+        <button class="exit-button" onclick="navigateToMainPage()">Close</button>
         <!-- Task Creation Form -->
         <form id="createTaskForm">
             <!-- Task Name -->
@@ -86,11 +104,27 @@
                 <option value="MEDIUM">Medium</option>
                 <option value="IMPORTANT">Important</option>
                 <option value="URGENT">Urgent</option>
-            </select><br>
+            </select>
+            <label for="urgentCheckbox" style="display: none;">Urgent:</label>
+            <input type="checkbox" id="urgentCheckbox" name="urgentCheckbox" style="display: none;">
+            <br>
 
             <!-- Add Complexity Input -->
             <label for="taskComplexity">Complexity:</label>
-            <input type="text" id="taskComplexity" name="taskComplexity" required><br>
+            <!-- <input type="text" id="taskComplexity" name="taskComplexity" required><br> -->
+            <select id="taskComplexity" name="taskComplexity" required>
+                <option value=0>0</option>
+                <option value=1>1</option>
+                <option value=2>2</option>
+                <option value=3>3</option>
+                <option value=4>4</option>
+                <option value=5>5</option>
+                <option value=6>6</option>
+                <option value=7>7</option>
+                <option value=8>8</option>
+                <option value=9>9</option>
+                <option value=10>10</option>
+            </select><br>
             
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
@@ -113,8 +147,20 @@
                 <% } %>
             </select><br>
 
+            <label for="taskAssignees">Status:</label>
+            <div id="taskAssignees" style="max-height: 200px; overflow: auto;">
+                <% for (let i = 0; i < users.length; i++) { %>
+                    <label style="margin: 0; padding: 0;">
+                        <input type="checkbox" name="selectedAssignees" value='<%= i %>'>
+                        <span style="font-size: smaller;"><%= users[i].name %> (<%= users[i].username %>)</span>
+                    </label><br>
+                <% } %>
+            </div>
+
+
+
             <!-- Add Stage Input -->
-            <label for="taskStage">Stage:</label>
+            <label class="stage-label" for="taskStage">Stage:</label>
             <select id="taskStage" name="taskStage" required>
                 <option value="PLANNING">Planning</option>
                 <option value="DEVELOPMENT">Development</option>
@@ -126,6 +172,26 @@
         </form>
     </div>
     <script>
+        const taskPriorityDropdown = document.getElementById("taskPriority");
+        const urgentCheckbox = document.getElementById("urgentCheckbox");
+        const urgentLabel = document.querySelector('label[for="urgentCheckbox"]');
+
+        // Add an event listener to the Priority dropdown
+        taskPriorityDropdown.addEventListener("change", function () {
+            // Check if the selected option is "IMPORTANT"
+            if (taskPriorityDropdown.value === "IMPORTANT") {
+                // If "IMPORTANT" is selected, show the Urgent checkbox and its label
+                urgentLabel.style.display = "inline-block";
+                urgentCheckbox.style.display = "inline-block";
+            } else {
+                // If any other option is selected, hide the Urgent checkbox and its label
+                urgentLabel.style.display = "none";
+                urgentCheckbox.style.display = "none";
+                urgentCheckbox.checked = false;
+            }
+        });
+
+
         document.getElementById("createTaskForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
             
@@ -137,6 +203,12 @@
             const taskTag = document.getElementById("taskTag").value;
             const taskStatus = document.getElementById("taskStatus").value;
             const taskStage = document.getElementById("taskStage").value;
+            const isUrgent = document.getElementById("urgentCheckbox").checked;
+            const taskAssignees = [];
+            const checkboxes = document.querySelectorAll('input[name="selectedAssignees"]:checked');
+            checkboxes.forEach(function(checkbox) {
+                taskAssignees.push(checkbox.value);
+            });
 
             // // Create a JavaScript object with the form data
             // const formData = {
@@ -157,6 +229,8 @@
             formData.append("taskTag", taskTag);
             formData.append("taskStatus", taskStatus);
             formData.append("taskStage", taskStage);
+            formData.append("isUrgent", isUrgent);
+            formData.append("taskAssignees", taskAssignees);
 
             // Send a POST request with the form data to the server
             fetch("/create_task", {
@@ -181,6 +255,10 @@
                 console.error("Error:", error);
             });
         });
+
+        function navigateToMainPage() {
+            window.location.href = "/main_page"; // Navigate to the create_task.html page
+        }
     </script>
 </body>
 </html>

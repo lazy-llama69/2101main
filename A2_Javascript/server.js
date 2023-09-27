@@ -1,16 +1,7 @@
-let columns = [];
-
-// Require your Column class here
-const Column = require('./models/column'); 
-// Require your Task class here
-const Task = require('./models/task'); // Adjust the path as needed
-const { privateEncrypt } = require("crypto");
-
 let ejs = require("ejs");
 let db;
 let collection;
 
-const mongodb = require("mongodb");
 const express = require("express");
 let path = require("path");
 const app = express();
@@ -20,20 +11,72 @@ app.set("view engine", "html");
 
 app.use(express.urlencoded({ extended: true }));
 
-const MongoClient = mongodb.MongoClient;
-
-const url = "mongodb://0.0.0.0:27017/";
-const client = new MongoClient(url);
-
-
-async function connectDB() {
-	await client.connect();
-	db = client.db("fit2101");
-	collection = db.collection("asgn");
-	let result3 = await collection.insertOne({ name: "Bo", age: 57, address: "Perth" });
-	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
-	return "Done";
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://jtan0365:jtan0365@cluster0.my7ao9m.mongodb.net/?retryWrites=true&w=majority";
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
 }
+
+run().catch(console.dir);
+
+
+let columns = [];
+let users = [];
+let admins = [];
+
+// Require your Column class here
+const Column = require('./models/column'); 
+// Require your Task class here
+const Task = require('./models/task'); // Adjust the path as needed
+const { privateEncrypt } = require("crypto");
+
+const User = require('./models/user'); // Adjust the path as needed
+
+var todo = new Column("To-do")
+var inprog = new Column("In-Progress")
+var completed = new Column("Completed")
+columns.push(todo);
+columns.push(inprog);
+columns.push(completed);
+
+var u1 = new User("Aaron", "aaro22@user.slay.com", "123")
+var u2 = new User("Aavon", "avon43@user.slay.com", "123")
+var u3 = new User("Alex", "alex65@user.slay.com", "123")
+var u4 = new User("Banana", "bnan72@user.slay.com", "123")
+var u5 = new User("Bonia", "bona85@user.slay.com", "123")
+var u6 = new User("Kuna", "kuna64@user.slay.com", "123")
+var u7 = new User("Pony", "pony11@user.slay.com", "123")
+var u8 = new User("Amy", "ammy94@user.slay.com", "123")
+var u9 = new User("Lori", "lori22@user.slay.com", "123")
+users.push(u1);
+users.push(u2);
+users.push(u3);
+users.push(u4);
+users.push(u5);
+users.push(u6);
+
+users.push(u7);
+users.push(u8);
+users.push(u9);
+
+users.sort((a, b) => a.name.localeCompare(b.name));
 
 
 // Create an array to store tasks
@@ -47,8 +90,6 @@ app.post("/login_page", function(req, res) {
 
 
 
-
-
 // Other Express setup code
 
 // Handle POST request to create a new task
@@ -58,43 +99,32 @@ app.post("/create_task", function(req, res) {
     const taskName = req.body.taskName;
     const taskDescription = req.body.taskDescription;
     const taskPriority = req.body.taskPriority;
-    const taskComplexity = req.body.taskComplexity;
+    const taskComplexity = parseInt(req.body.taskComplexity);
     const taskTag = req.body.taskTag;
     const taskStatus = req.body.taskStatus;
     const taskStage = req.body.taskStage;
-    console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage)
+    const isUrgent = JSON.parse(req.body.isUrgent);
+    const taskAssignees = req.body.taskAssignees;
+    console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent,taskAssignees)
 
     // Create a new task object using your Task class
-    const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage);
+    const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent);
 
-    // You should implement a function in your Task class to save this new task to your data store.
-    // For example, you could save it to a database or an array in memory.
+    var stringArray = taskAssignees.split(',');
+    var numberArray = stringArray.map(function(item) {
+      return parseFloat(item);
+    });
 
-    // Insert newTask into the database (assuming you have a MongoDB collection called 'tasks')
-    // db.collection('database_1').insertOne(newTask, function(err, result) {
-    //   if (err) {
-    //       console.log("Error inserting task into MongoDB:", err);
-    //   } else {
-    //       console.log("Task inserted successfully:", result.insertedId);
-    //   }
-    // });
-
-    // Add the new task to the tasks array
-    // if (taskStatus == 'TO_DO'){
-    //   todotasks.push(newTask);
-    // }
-    // else if (taskStatus == 'IN_PROGRESS'){
-    //   inprogresstasks.push(newTask);
-    // }
-    // else{
-    //   donetasks.push(newTask);
-    //}
+    for (var i = 0; i < numberArray.length; i++) {
+      newTask.addAssignees(users[numberArray[i]])
+      users[numberArray[i]].addTask(newTask)
+      console.log(users[numberArray[i]])
+    }
 
     columns[parseInt(taskStatus)].tasks.push(newTask);
     console.log("here")
-    console.log(columns[parseInt(taskStatus)].tasks);
-    
-    
+    console.log(columns[parseInt(taskStatus)].tasks[0].assignees);
+
     res.redirect("/main_page");
 });
 
@@ -108,6 +138,7 @@ app.post("/edit_task", function(req, res) {
   console.log(intIndex)
   console.log(taskStage)
   console.log(todotasks[taskIndex])
+  
   let responseData;
 
   if (taskStage == "TO_DO") {
@@ -138,14 +169,18 @@ app.post("/delete_task", function(req, res) {
   const taskIndex = req.body.taskIndex
   var intIndex = parseInt(taskIndex,10)
 
-  columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)
+  var deletedTask = columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)[0]
 
-  // Create a new task object using your Task class
+  var deletedTaskAssignees = deletedTask.assignees
 
-  // You should implement a function in your Task class to save this new task to your data store.
-  // For example, you could save it to a database or an array in memory.
+  for (var i = 0; i < deletedTaskAssignees.length; i++) {
+    var assigneeIndex = users.indexOf(deletedTaskAssignees[i]);
+    var deletetaskIndex = users[assigneeIndex].tasks.indexOf(deletedTask)
+    users[assigneeIndex].tasks.splice(deletetaskIndex,1)
 
-  // Redirect to the main page or wherever you want to go after creating the task
+  }
+
+  
   res.json({ success: true });
 });
 
@@ -189,9 +224,13 @@ app.get("/main_page", function(req, res) {
   res.render("main_page", {columns:columns});
 });
 
+
+app.get("/manage_user", function(req, res) {
+  res.render("manage_user", {users:users});
+});
 // Add a new route to display the create_task.html page
 app.get("/create_task_page", function(req, res) {
-  res.render("create_task", {columns:columns});
+  res.render("create_task", {columns:columns, users:users});
 });
 
 // Add a new route to display the edit_task.html page
@@ -231,8 +270,115 @@ app.post("/create_column", function(req, res) {
   columns.push(newColumn);
   console.log(columns)
   
-  //res.redirect("/main_page");
+  res.redirect("/main_page");
 });
 
-connectDB().then(console.log);
+app.post("/delete_column", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const columnIndex = req.body.columnIndex;
+  console.log(columnIndex);
+
+  columns.splice(parseInt(columnIndex),1)
+  console.log(columns)
+
+  res.redirect("/main_page");
+  
+});
+
+app.get("/edit_user_page", function(req, res) {
+  //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+
+  // Get the values of the parameters
+  const userIndex = req.query.param1;
+
+  var user = users[parseInt(userIndex)]
+  res.render("edit_user", {user:user});
+});
+
+app.post("/edit_user", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const userName = req.body.userName;
+  const userUsername = req.body.userUsername;
+  const userPassword = req.body.userPassword;
+  const userId = req.body.userId;
+  console.log(userName)
+  console.log(userUsername)
+  console.log(userPassword)
+  console.log(userId)
+
+  const targetUser = users.find((user) => user.id === userId);
+
+  if (targetUser.name !== userName){
+    targetUser.name = userName
+  }
+  if (targetUser.username !== userUsername){
+    targetUser.username = userUsername
+  }
+  if (userPassword.length > 0 && userPasswordtargetUser.password !== userPassword){
+    targetUser.password = userPassword
+    console.log("pw changed")
+  }
+
+  users.sort((a, b) => a.name.localeCompare(b.name));
+  
+  res.json({ success: true });
+  
+});
+
+
+app.post("/delete_user", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const userIndex = req.body.userIndex;
+
+  var deletedUser = users.splice(parseInt(userIndex),1)[0]
+
+  for (var i = 0; i < deletedUser.tasks.length; i++) {
+    indexOfUserInTask = deletedUser.tasks[i].assignees.indexOf(deletedUser)
+    deletedUser.tasks[i].assignees.splice(indexOfUserInTask,1)
+
+    console.log(deletedUser.tasks[i].assignees)
+
+  }
+
+  
+  res.json({ success: true });
+});
+
+app.post("/add_user", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const userName = req.body.userName;
+  const userUsername = req.body.userUsername;
+  const userPassword = req.body.userPassword;
+  console.log(userName)
+  console.log(userUsername)
+  console.log(userPassword)
+
+  const usernameExists = users.some(user => user.username === userUsername);
+  if (usernameExists){
+    res.status(400).json({ success: false });
+  }
+  else{
+    newUser = new User(userName, userUsername, userPassword);
+
+    users.push(newUser)
+    users.sort((a, b) => a.name.localeCompare(b.name));
+    
+    res.status(200).json({ success: true });
+  }
+  
+});
+
+app.get("/add_user", function(req, res) {
+  //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+  res.render("add_user");
+});
+
+
+
+
+
 

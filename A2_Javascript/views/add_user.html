@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New User</title>
+    <!-- <script src="server.js"></script> -->
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px; /* Adjust the max-width to fit your content */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 93%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .exit-button {
+        background-color: #d9534f; /* Red color for exit button */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px; /* Adjust the top position as needed */
+        left: 10px; /* Adjust the left position as needed */
+    }
+    </style>
+
+    <!-- You can include your external JavaScript file here as well -->
+    <!-- <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script> -->
+</head>
+<body>
+    <h1>Create New User</h1>
+
+    <!-- Outer Box (Container) -->
+    <div class="container">
+        <button class="exit-button" onclick="navigateToManageUser()">Close</button>
+        <!-- Task Creation Form -->
+        <form id="createUserForm">
+            <!-- Task Name -->
+            <label for="userName">Name:</label>
+            <input type="text" id="userName" placeholder="Enter full name" required "><br>
+
+            <!-- Task Description -->
+            <label for="userUsername">Username:</label>
+            <input type="text" id="userUsername" placeholder="Example: xxxx99@user.slay.com"required><br>
+
+            <!-- Task Description -->
+            <label for="userPassword">Password:</label>
+            <input type="text" id="userPassword" placeholder="Must be at least 8 characters" required><br>
+
+            <button type="submit">Create User</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById("createUserForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Collect form data
+            const userName = document.getElementById("userName").value;
+            const userUsername = document.getElementById("userUsername").value;
+            if (isUserEmail(userUsername)){
+                const userPassword = document.getElementById("userPassword").value;
+                
+                // Create a JavaScript object with the form data
+                const formData = new URLSearchParams();
+                formData.append("userName", userName);
+                formData.append("userUsername", userUsername);
+                formData.append("userPassword", userPassword);
+
+                // Send a POST request with the form data to the server
+                fetch("/add_user", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Redirect to the main page upon successful submission
+                        console.log("Form submission successful");
+                        window.location.href = "/manage_user";
+                    } else {
+                        // Handle errors here (e.g., display an error message)
+                        alert("Username has already been taken");
+                    }
+                })
+                .catch(error => {
+                    // Handle network or other errors
+                    console.error("Error:", error);
+                });
+            }
+            else{
+                alert("User email must end with @user.slay.com");
+            }
+        });
+
+        function isUserEmail(email) {
+            return email.endsWith("@user.slay.com");
+        }
+
+        function navigateToManageUser() {
+            window.location.href = "/manage_user";
+        }
+        
+    </script>
+</body>
+</html>
+

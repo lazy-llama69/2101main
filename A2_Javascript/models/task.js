@@ -4,7 +4,7 @@
  */
 class Task {
 
-    constructor(name, complexity, tag, priority, description, status, stage) {
+    constructor(name, complexity, tag, priority, description, status, stage, urgent) {
 
         this.id = this.generateId();
         this.name = name;
@@ -13,6 +13,7 @@ class Task {
         this.priority = priority;
         this.assignees = [];
         this.description = description;
+        this.urgent = urgent;
         this.status = status;
         this.stage = stage
     }
