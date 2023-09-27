@@ -60,6 +60,22 @@
         button[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        .stage-label {
+            margin-top: 20px; /* Adjust this value as needed */
+        }
+
+        .exit-button {
+        background-color: #d9534f; /* Red color for exit button */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px; /* Adjust the top position as needed */
+        left: 10px; /* Adjust the left position as needed */
+        }
     </style>
 
     <!-- You can include your external JavaScript file here as well -->
@@ -70,6 +86,7 @@
 
     <!-- Outer Box (Container) -->
     <div class="container">
+        <button class="exit-button" onclick="navigateToMainPage()">Close</button>
         <!-- Task Creation Form -->
         <form id="editTaskForm">
             <!-- Task Name -->
@@ -80,60 +97,90 @@
             <label for="taskDescription">Description:</label>
             <textarea id="taskDescription" rows="4" required><%= task.description %></textarea><br>
 
+            
             <!-- Task Priority -->
             <label for="taskPriority">Priority:</label>
-            <select id="taskPriority">
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-            </select><br>
+            <select id="taskPriority" name="taskPriority">
+                <option value="LOW" <%= task.priority === 'LOW' ? 'selected' : '' %>>Low</option>
+                <option value="MEDIUM" <%= task.priority === 'MEDIUM' ? 'selected' : '' %>>Medium</option>
+                <option value="HIGH" <%= task.priority === 'HIGH' ? 'selected' : '' %>>High</option>
+                <option value="URGENT" <%= task.priority === 'URGENT' ? 'selected' : '' %>>Urgent</option>
+            </select>
+            <label for="urgentCheckbox" style="display: none;">Urgent:</label>
+            <input type="checkbox" id="urgentCheckbox" name="urgentCheckbox" style="display: none;">
+            <br>
 
-            <!-- Add Complexity Input -->
+            <!-- Task Complexity -->
             <label for="taskComplexity">Complexity:</label>
-            <input type="text" id="taskComplexity" name="taskComplexity"><br>
-            
-            <!-- Add Tag Input
-            <label for="taskTag">Tag:</label>
-            <input type="text" id="taskTag" name="taskTag"><br> -->
+            <select id="taskComplexity" name="taskComplexity">
+                <option value="0" <%= task.complexity === 0 ? 'selected' : '' %>>0</option>
+                <option value="1" <%= task.complexity === 1 ? 'selected' : '' %>>1</option>
+                <option value="2" <%= task.complexity === 2 ? 'selected' : '' %>>2</option>
+                <option value="3" <%= task.complexity === 3 ? 'selected' : '' %>>3</option>
+                <option value="4" <%= task.complexity === 4 ? 'selected' : '' %>>4</option>
+                <option value="5" <%= task.complexity === 5 ? 'selected' : '' %>>5</option>
+                <option value="6" <%= task.complexity === 6 ? 'selected' : '' %>>6</option>
+                <option value="7" <%= task.complexity === 7 ? 'selected' : '' %>>7</option>
+                <option value="8" <%= task.complexity === 8 ? 'selected' : '' %>>8</option>
+                <option value="9" <%= task.complexity === 9 ? 'selected' : '' %>>9</option>
+                <option value="10" <%= task.complexity === 10 ? 'selected' : '' %>>10</option>
+                <!-- Add similar options for other complexity levels -->
+            </select><br>
 
             <!-- Add Tag Input -->
             <label for="taskTag">Tag:</label>
             <select id="taskTag" name="taskTag">
-                <option value="FRONTEND">Frontend</option>
-                <option value="BACKEND">Backend</option>
-                <option value="API">API</option>
-                <option value="DATABASE">Database</option>
-                <option value="FRAMEWORK">Framework</option>
-                <option value="TESTING">Testing</option>
-                <option value="UI">UI</option>
-                <option value="UX">UX</option>
+                <option value="FRONTEND" <%= task.tag === 'FRONTEND' ? 'selected' : '' %>>Frontend</option>
+                <option value="BACKEND" <%= task.tag === 'BACKEND' ? 'selected' : '' %>>Backend</option>
+                <option value="API" <%= task.tag === 'API' ? 'selected' : '' %>>API</option>
+                <option value="DATABASE" <%= task.tag === 'DATABASE' ? 'selected' : '' %>>Database</option>
+                <option value="FRAMEWORK" <%= task.tag === 'FRAMEWORK' ? 'selected' : '' %>>Framework</option>
+                <option value="TESTING" <%= task.tag === 'TESTING' ? 'selected' : '' %>>Testing</option>
+                <option value="UI" <%= task.tag === 'UI' ? 'selected' : '' %>>UI</option>
+                <option value="UX" <%= task.tag === 'UX' ? 'selected' : '' %>>UX</option>
+                <!-- Add similar options for other tags -->
             </select><br>
 
             <!-- Add Status Input -->
             <label for="taskStatus">Status:</label>
             <select id="taskStatus" name="taskStatus">
                 <% for (let i = 0; i < columns.length; i++) { %>
-                    <option value='<%= i %>'><%= columns[i].name %></option>
+                    <option value='<%= i %>' <%= i == task.status ? 'selected' : '' %>><%= columns[i].name %></option>
                 <% } %>
             </select><br>
 
-            <!-- Add Stage Input
-            <label for="taskStage">Stage:</label>
-            <input type="text" id="taskStage" name="taskStage"><br> 
-            <!-- Add Stage Input -->
-            <label for="taskStage">Stage:</label>
-            <select id="taskStage" name="taskStage">
-                <option value="PLANNING">Planning</option>
-                <option value="DEVELOPMENT">Development</option>
-                <option value="TESTING">Testing</option>   
-            </select><br> 
+            <label for="taskAssignees">Assignees:</label>
+            <div id="taskAssignees" style="max-height: 200px; overflow: auto;">
+                <% for (let i = 0; i < users.length; i++) { %>
+                    <label style="margin: 0; padding: 0;">
+                        <input type="checkbox" name="selectedAssignees" value='<%= i %>' <%= task.assignees.includes(users[i]) ? 'checked' : '' %>>
+                        <span style="font-size: smaller;"><%= users[i].name %> (<%= users[i].username %>)</span>
+                    </label><br>
+                <% } %>
+            </div>
 
-            <!-- Submit Button -->
             <button type="submit">Update Task</button>
         </form>
     </div>
     <script>
+        const taskPriorityDropdown = document.getElementById("taskPriority");
+        const urgentCheckbox = document.getElementById("urgentCheckbox");
+        const urgentLabel = document.querySelector('label[for="urgentCheckbox"]');
+
+        // Add an event listener to the Priority dropdown
+        taskPriorityDropdown.addEventListener("change", function () {
+            // Check if the selected option is "IMPORTANT"
+            if (taskPriorityDropdown.value === "IMPORTANT") {
+                // If "IMPORTANT" is selected, show the Urgent checkbox and its label
+                urgentLabel.style.display = "inline-block";
+                urgentCheckbox.style.display = "inline-block";
+            } else {
+                // If any other option is selected, hide the Urgent checkbox and its label
+                urgentLabel.style.display = "none";
+                urgentCheckbox.style.display = "none";
+                urgentCheckbox.checked = false;
+            }
+        });
         window.addEventListener("DOMContentLoaded", populateForm);
         document.getElementById("editTaskForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
@@ -146,17 +193,33 @@
             const taskTag = document.getElementById("taskTag").value;
             const taskStatus = document.getElementById("taskStatus").value;
             const taskStage = document.getElementById("taskStage").value;
+            const isUrgent = document.getElementById("urgentCheckbox").checked;
+            const taskAssignees = [];
+            const checkboxes = document.querySelectorAll('input[name="selectedAssignees"]:checked');
+            checkboxes.forEach(function(checkbox) {
+                taskAssignees.push(checkbox.value);
+            });
 
             // Create a JavaScript object with the form data
-            const formData = {
-                taskName,
-                taskComplexity,
-                taskTag,
-                taskPriority,
-                taskDescription,
-                taskStatus,
-                taskStage
-            };
+            // const formData = {
+            //     taskName,
+            //     taskComplexity,
+            //     taskTag,
+            //     taskPriority,
+            //     taskDescription,
+            //     taskStatus,
+            //     taskStage
+            // };
+            const formData = new URLSearchParams();
+            formData.append("taskName", taskName);
+            formData.append("taskDescription", taskDescription);
+            formData.append("taskPriority", taskPriority);
+            formData.append("taskComplexity", taskComplexity);
+            formData.append("taskTag", taskTag);
+            formData.append("taskStatus", taskStatus);
+            formData.append("taskStage", taskStage);
+            formData.append("isUrgent", isUrgent);
+            formData.append("taskAssignees", taskAssignees);
 
             // Send a POST request with the form data to the server
             fetch("/edit_task", {
@@ -164,7 +227,7 @@
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(response => {
                 if (response.ok) {
@@ -180,6 +243,9 @@
                 console.error("Error:", error);
             });
         });
+        function navigateToMainPage() {
+            window.location.href = "/main_page"; // Navigate to the create_task.html page
+        }
         // document.addEventListener("DOMContentLoaded", function() {
         //     var task = {
         //         name: "Task 1",

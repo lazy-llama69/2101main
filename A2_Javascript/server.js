@@ -132,28 +132,18 @@ app.post("/create_task", function(req, res) {
 app.post("/edit_task", function(req, res) {
   console.log(req.body)
   // Extract data from the form
-  const taskIndex = req.body.Index;
-  const taskStage = req.body.Stage
-  var intIndex = parseInt(taskIndex,10)
-  console.log(intIndex)
-  console.log(taskStage)
-  console.log(todotasks[taskIndex])
+  // const taskIndex = req.body.Index;
+  // const taskStage = req.body.Stage
+  // var intIndex = parseInt(taskIndex,10)
+  // console.log(intIndex)
+  // console.log(taskStage)
+  // console.log(todotasks[taskIndex])
   
-  let responseData;
 
-  if (taskStage == "TO_DO") {
-    console.log("Passing in")
-    console.log(todotasks[taskIndex])
-
-    res.render("edit_task",{task: todotasks[taskIndex], index: taskIndex, list: todotasks }); 
-  } else if (taskStage == "IN_PROGRESS") {
-    responseData = { task: inprogresstasks[taskIndex], index: taskIndex, list: inprogresstasks };
-  } else {
-    responseData = { task: donetasks[taskIndex], index: taskIndex, list: donetasks };
-  }
 
   //   Render the edit_task template
   //res.render("edit_task", responseData);
+  res.redirect("/main_page");
 });
 
 // Add a separate route for handling the redirect
@@ -245,7 +235,7 @@ app.get("/edit_task_page", function(req, res) {
 
   var task = columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
   console.log(task)
-  res.render("edit_task", {task:task, columns:columns});
+  res.render("edit_task", {task:task, columns:columns, users:users});
 });
 
 // Add a new route to display the delete_task.html page
