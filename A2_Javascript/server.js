@@ -2,7 +2,6 @@ let ejs = require("ejs");
 let db;
 let collection;
 
-const mongodb = require("mongodb");
 const express = require("express");
 let path = require("path");
 const app = express();
@@ -109,18 +108,6 @@ users.push(u8);
 users.push(u9);
 
 users.sort((a, b) => a.name.localeCompare(b.name));
-
-
-
-
-async function connectDB() {
-	await client.connect();
-	db = client.db("fit2101");
-	collection = db.collection("asgn");
-	//let result3 = await collection.insertOne({ name: "Bo", age: 57, address: "Perth" });
-	// let result2 = await collection.insertOne({ name: "Harry", age: 90, address: "Sydney" });
-	return "Done";
-}
 
 
 // Create an array to store tasks
@@ -521,5 +508,4 @@ app.post("/edit_sprint", function(req, res) {
   res.status(200).json({ success: true });
 });
 
-connectDB().then(console.log);
 
