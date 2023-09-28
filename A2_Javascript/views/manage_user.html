@@ -128,6 +128,8 @@
 
     <!-- Function to display tasks -->
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const sprintIndex = urlParams.get('sprintIndex')
 
 
         // Function to delete a user
@@ -149,7 +151,7 @@
                     if (response.ok) {
                         // Redirect to the main page upon successful submission
                         console.log("Form submission successful");
-                        window.location.href = "/manage_user";
+                        window.location.href = "/manage_user?"
                     } else {
                         // Handle errors here (e.g., display an error message)
                         console.error("Form submission failed");
@@ -169,11 +171,11 @@
         }
 
         function navigateToAddTask() {
-            window.location.href = "/add_user"; // Navigate to the create_task.html page
+            window.location.href = "/add_user?"// Navigate to the create_task.html page
         }
 
         function navigateToMainPage() {
-            window.location.href = "/main_page"; // Navigate to the create_task.html page
+            window.location.href = "/dashboard" // Navigate to the create_task.html page
         }
 
 

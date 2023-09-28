@@ -20,11 +20,13 @@ const client = new MongoClient(url);
 let columns = [];
 let users = [];
 let admins = [];
+let sprints = [];
 
 // Require your Column class here
 const Column = require('./models/column'); 
 // Require your Task class here
 const Task = require('./models/task'); // Adjust the path as needed
+const Sprint = require('./models/sprint'); // Adjust the path as needed
 const { privateEncrypt } = require("crypto");
 
 const User = require('./models/user'); // Adjust the path as needed
@@ -35,6 +37,35 @@ var completed = new Column("Completed")
 columns.push(todo);
 columns.push(inprog);
 columns.push(completed);
+
+var t1 = new Task('eqwe',
+0,
+'FRONTEND',
+'IMPORTANT',
+'qwe',
+ '0',
+'PLANNING',
+false)
+
+var t2 = new Task('eqwe',
+0,
+'UI',
+'LOW',
+'qwe',
+ '0',
+'PLANNING',
+false)
+
+t1.addTime(5);
+t2.addTime(2);
+t2.addTime(2);
+
+todo.tasks.push(t1)
+todo.tasks.push(t2)
+
+var s1 = new Sprint("Sprint 1", "NOT_STARTED", "2023-06-24", "2023-07-03")
+s1.columns = columns
+sprints.push(s1)
 
 var u1 = new User("Aaron", "aaro22@user.slay.com", "123")
 var u2 = new User("Aavon", "avon43@user.slay.com", "123")
@@ -61,6 +92,8 @@ users.sort((a, b) => a.name.localeCompare(b.name));
 
 
 
+
+
 async function connectDB() {
 	await client.connect();
 	db = client.db("fit2101");
@@ -77,7 +110,7 @@ app.get("/", function (req, res) {
   });
 
 app.post("/login_page", function(req, res) {
-    res.redirect("main_page");
+    res.redirect("/dashboard");
 });
 
 
@@ -99,6 +132,7 @@ app.post("/create_task", function(req, res) {
     const taskStage = req.body.taskStage;
     const isUrgent = JSON.parse(req.body.isUrgent);
     const taskAssignees = req.body.taskAssignees;
+    const sprintIndex = req.body.sprintIndex;
     console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent,taskAssignees)
 
     // Create a new task object using your Task class
@@ -115,11 +149,9 @@ app.post("/create_task", function(req, res) {
       console.log(users[numberArray[i]])
     }
 
-    columns[parseInt(taskStatus)].tasks.push(newTask);
-    console.log("here")
-    console.log(columns[parseInt(taskStatus)].tasks[0].assignees);
+    sprints[sprintIndex].columns[parseInt(taskStatus)].tasks.push(newTask);
 
-    res.redirect("/main_page");
+    res.status(200).json({ success: true });
 });
 
 // Handle POST request to edit task
@@ -161,9 +193,10 @@ app.post("/delete_task", function(req, res) {
   // Extract data from the form
   const columnIndex = req.body.columnIndex;
   const taskIndex = req.body.taskIndex
+  const sprintIndex = req.body.sprintIndex
   var intIndex = parseInt(taskIndex,10)
 
-  var deletedTask = columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)[0]
+  var deletedTask = sprints[sprintIndex].columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)[0]
 
   var deletedTaskAssignees = deletedTask.assignees
 
@@ -184,6 +217,7 @@ app.post("/move_task", function(req, res) {
   const index = req.body.itemindex;
   const targetColumnIndex = req.body.targetColumnIndex;
   const prevColumnIndex = req.body.prevColumnIndex;
+  const sprintIndex = req.body.sprintIndex;
   console.log(target)
   console.log(prev)
   console.log(index)
@@ -194,18 +228,13 @@ app.post("/move_task", function(req, res) {
   console.log(columns)
   console.log(columns[parseInt(prevColumnIndex)].tasks)
 
-  var task = columns[parseInt(prevColumnIndex)].tasks.splice(parseInt(index),1)[0]
+  var task = sprints[sprintIndex].columns[parseInt(prevColumnIndex)].tasks.splice(parseInt(index),1)[0]
 
   console.log("status before")
-  console.log(task.status)
   task.status = targetColumnIndex
-  console.log("status changed")
-  console.log(task.status)
 
-  columns[parseInt(targetColumnIndex)].tasks.push(task)
+  sprints[sprintIndex].columns[parseInt(targetColumnIndex)].tasks.push(task)
   console.log("done")
-  console.log(columns)
-  console.log(columns[parseInt(prevColumnIndex)].tasks)
 
   res.json({ success: true });
 
@@ -215,7 +244,13 @@ app.get("/main_page", function(req, res) {
   // Render the main_page.html or any other page you want to show
   //res.render("main_page");
   //res.sendFile(path.join(__dirname, "/views/main_page.html"));
-  res.render("main_page", {columns:columns});
+  const sprintIndex = req.query.sprintIndex;
+  res.render("main_page", {columns:sprints[sprintIndex].columns, sprintIndex: sprintIndex, sprintName: sprints[sprintIndex].name});
+});
+
+app.get("/filter", function(req, res) {
+  const sprintIndex = req.query.sprintIndex;
+  res.render("filter", {columns:sprints[sprintIndex], users:users, sprintIndex:sprintIndex});
 });
 
 
@@ -223,8 +258,10 @@ app.get("/manage_user", function(req, res) {
   res.render("manage_user", {users:users});
 });
 // Add a new route to display the create_task.html page
-app.get("/create_task_page", function(req, res) {
-  res.render("create_task", {columns:columns, users:users});
+app.get("/create_task", function(req, res) {
+  console.log("WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFf");
+  const sprintIndex = req.query.sprintIndex;
+  res.render("create_task", {columns:sprints[sprintIndex].columns, users:users, sprintIndex:sprintIndex});
 });
 
 // Add a new route to display the edit_task.html page
@@ -234,12 +271,13 @@ app.get("/edit_task_page", function(req, res) {
   // Get the values of the parameters
   const columnIndex = req.query.param1;
   const taskIndex = req.query.param2;
+  const sprintIndex = req.query.sprintIndex;
   console.log(columnIndex)
   console.log(taskIndex)
 
-  var task = columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
+  var task = sprints[sprintIndex].columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
   console.log(task)
-  res.render("edit_task", {task:task, columns:columns});
+  res.render("edit_task", {task:task, columns:sprints[sprintIndex], users: users, sprintIndex:sprintIndex});
 });
 
 // Add a new route to display the delete_task.html page
@@ -252,31 +290,72 @@ app.get("/login_page", function(req, res) {
   res.sendFile(path.join(__dirname, "/views/login_page.html"));
 });
 
+app.get("/dashboard", function(req, res) {
+  res.render("dashboard", {sprints:sprints});
+});
+
+
 // Handle POST request to create a new task
 app.post("/create_column", function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const columnName = req.body.columnName;
+  const sprintIndex = req.body.sprintIndex;
   console.log(columnName);
+  console.log(sprintIndex);
+  
 
   // Create a new task object using your Task class
   const newColumn = new Column(columnName);
-  columns.push(newColumn);
-  console.log(columns)
+  sprints[sprintIndex].columns.push(newColumn);
   
-  res.redirect("/main_page");
+  res.status(200).json({ success: true });
+});
+
+app.post("/edit_column", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const columnName = req.body.columnName;
+  const columnIndex = req.body.columnIndex;
+  const sprintIndex = req.body.sprintIndex;
+  console.log(columnName);
+  console.log(columnIndex);
+  console.log(sprintIndex);
+
+  sprints[sprintIndex].columns[columnIndex].name = columnName
+
+  res.status(200).json({ success: true });
 });
 
 app.post("/delete_column", function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const columnIndex = req.body.columnIndex;
+  const sprintIndex = req.body.sprintIndex;
   console.log(columnIndex);
 
-  columns.splice(parseInt(columnIndex),1)
+  sprints[sprintIndex].columns.splice(parseInt(columnIndex),1)
   console.log(columns)
 
-  res.redirect("/main_page");
+    
+  res.status(200).json({ success: true });
+  
+});
+
+app.post("/move_column", function(req, res) {
+  console.log(req.body)
+  // Extract data from the form
+  const sourceIndex = req.body.source;
+  const targetIndex = req.body.target;
+  const sprintIndex = req.body.sprintIndex;
+  console.log(sourceIndex);
+  console.log(targetIndex);
+
+
+  const columnToMove = sprints[sprintIndex].columns.splice(sourceIndex, 1)[0];
+  sprints[sprintIndex].columns.splice(targetIndex, 0, columnToMove);
+
+  res.status(200).json({ success: true });
   
 });
 
@@ -371,9 +450,59 @@ app.get("/add_user", function(req, res) {
   res.render("add_user");
 });
 
+app.post("/delete_sprint", function(req, res) {
+  console.log(req.body)
+  const sprintIndex = req.body.sprintIndex;
+  console.log(sprintIndex);
+
+  sprints.splice(parseInt(sprintIndex),1)
+
+  res.status(200).json({ success: true });
+});
+
+app.get("/create_sprint", function(req, res) {
+  //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+  res.render("create_sprint");
+});
+
+app.post("/create_sprint", function(req, res) {
+  const sprintName = req.body.sprintName;
+  const sprintStatus = req.body.sprintStatus;
+  const sprintStartDate = req.body.sprintStartDate;
+  const sprintEndDate = req.body.sprintEndDate;
+  console.log(sprintName,sprintStatus,sprintStartDate,sprintEndDate);
+
+  const newSprint = new Sprint(sprintName, sprintStatus, sprintStartDate, sprintEndDate);
+  sprints.push(newSprint);
+  
+  res.status(200).json({ success: true });
+});
 
 
+app.get("/edit_sprint", function(req, res) {
+  const sprintIndex = req.query.sprintIndex;
+  console.log("Here")
+  console.log(sprintIndex)
+  console.log(sprints[sprintIndex]);
+  res.render("edit_sprint", {sprint:sprints[sprintIndex]});
+});
 
+app.post("/edit_sprint", function(req, res) {
+  const sprintName = req.body.sprintName;
+  const sprintStatus = req.body.sprintStatus;
+  const sprintStartDate = req.body.sprintStartDate;
+  const sprintEndDate = req.body.sprintEndDate;
+  const sprintIndex = req.body.sprintIndex;
+  console.log(sprintName,sprintStatus,sprintStartDate,sprintEndDate, sprintIndex);
+
+  var sprint = sprints[parseInt(sprintIndex)];
+  sprint.name = sprintName;
+  sprint.status = sprintStatus;
+  sprint.start_date = sprintStartDate;
+  sprint.end_date = sprintEndDate;
+  
+  res.status(200).json({ success: true });
+});
 
 connectDB().then(console.log);
 
