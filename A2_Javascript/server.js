@@ -12,10 +12,31 @@ app.set("view engine", "html");
 
 app.use(express.urlencoded({ extended: true }));
 
-const MongoClient = mongodb.MongoClient;
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://jtan0365:jtan0365@cluster0.my7ao9m.mongodb.net/?retryWrites=true&w=majority";
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
 
-const url = "mongodb://0.0.0.0:27017/";
-const client = new MongoClient(url);
+run().catch(console.dir);
+
 
 let columns = [];
 let users = [];
@@ -92,8 +113,6 @@ users.sort((a, b) => a.name.localeCompare(b.name));
 
 
 
-
-
 async function connectDB() {
 	await client.connect();
 	db = client.db("fit2101");
@@ -112,8 +131,6 @@ app.get("/", function (req, res) {
 app.post("/login_page", function(req, res) {
     res.redirect("/dashboard");
 });
-
-
 
 
 
