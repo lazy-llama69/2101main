@@ -21,6 +21,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -28,8 +29,7 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
+  } finally{
     await client.close();
   }
 }
@@ -37,8 +37,6 @@ async function run() {
 db = client.db("database1");
 usersCollection = db.collection("users");
 sprintsCollection = db.collection("sprints");
-
-run().catch(console.dir);
 
 
 var columns = [];
@@ -67,7 +65,7 @@ var t1 = new Task('eqwe',
 'FRONTEND',
 'IMPORTANT',
 'qwe',
- '0',
+'0',
 'PLANNING',
 false)
 
@@ -76,7 +74,7 @@ var t2 = new Task('eqwe',
 'UI',
 'LOW',
 'qwe',
- '0',
+'0',
 'PLANNING',
 false)
 
@@ -90,7 +88,8 @@ todo.tasks.push(t2)
 var s1 = new Sprint("Sprint 1", "NOT_STARTED", "2023-06-24", "2023-07-03")
 s1.columns = columns
 sprints.push(s1)
-sprintsCollection.insertOne(s1);
+// once s1 exist in the database, no need to run below line of code
+// sprintsCollection.insertOne(s1);
 
 var u1 = new User("Aaron", "aaro22@user.slay.com", "123")
 var u2 = new User("Aavon", "avon43@user.slay.com", "123")
@@ -114,7 +113,8 @@ users.push(u9);
 
 users.sort((a, b) => a.name.localeCompare(b.name));
 
-usersCollection.insertMany(users);
+// once these data exist in the database, no need to run below line of code
+// usersCollection.insertMany(users);
 
 // Create an array to store tasks
 app.get("/", function (req, res) {
@@ -211,7 +211,7 @@ app.post("/edit_task", async function(req, res) {
     for (var i = 0; i < numberArray.length; i++) {
       task.addAssignees(users[numberArray[i]])
       temp_user = users[numberArray[i]];
-      temp_user.addTask(newTask);
+      temp_user.addTask(task);
       user_id = temp_user.ID;
       await usersCollection.updateOne({ ID: user_id }, { $set: temp_user })
       // console.log(users[numberArray[i]])
@@ -713,3 +713,5 @@ app.post("/edit_sprint",async function(req, res) {
 });
 
 
+
+run().catch(console.dir);
