@@ -34,6 +34,10 @@ async function run() {
   }
 }
 
+db = client.db("database1");
+usersCollection = db.collection("users");
+sprintsCollection = db.collection("sprints");
+
 run().catch(console.dir);
 
 
@@ -86,6 +90,7 @@ todo.tasks.push(t2)
 var s1 = new Sprint("Sprint 1", "NOT_STARTED", "2023-06-24", "2023-07-03")
 s1.columns = columns
 sprints.push(s1)
+sprintsCollection.insertOne(s1);
 
 var u1 = new User("Aaron", "aaro22@user.slay.com", "123")
 var u2 = new User("Aavon", "avon43@user.slay.com", "123")
@@ -109,6 +114,7 @@ users.push(u9);
 
 users.sort((a, b) => a.name.localeCompare(b.name));
 
+usersCollection.insertMany(users);
 
 // Create an array to store tasks
 app.get("/", function (req, res) {
@@ -124,7 +130,7 @@ app.post("/login_page", function(req, res) {
 // Other Express setup code
 
 // Handle POST request to create a new task
-app.post("/create_task", function(req, res) {
+app.post("/create_task", async function(req, res) {
     // console.log(req.body)
     // Extract data from the form
     const taskName = req.body.taskName;
@@ -149,17 +155,21 @@ app.post("/create_task", function(req, res) {
 
     for (var i = 0; i < numberArray.length; i++) {
       newTask.addAssignees(users[numberArray[i]])
-      users[numberArray[i]].addTask(newTask)
+      temp_user = users[numberArray[i]];
+      temp_user.addTask(newTask);
+      user_id = temp_user.ID;
+      await usersCollection.updateOne({ ID: user_id }, { $set: temp_user })
       // console.log(users[numberArray[i]])
     }
-
-    sprints[sprintIndex].columns[parseInt(taskStatus)].tasks.push(newTask);
-
+    
+    temp_sprint = sprints[sprintIndex];
+    temp_sprint.columns[parseInt(taskStatus)].tasks.push(newTask);
+    sprintsCollection.updateOne( { ID: temp_sprint.ID }, { $set: temp_sprint })
     res.status(200).json({ success: true });
 });
 
 // Handle POST request to edit task
-app.post("/edit_task", function(req, res) {
+app.post("/edit_task", async function(req, res) {
   // console.log(req.body)
   const taskName = req.body.taskName;
   const taskDescription = req.body.taskDescription;
@@ -200,11 +210,22 @@ app.post("/edit_task", function(req, res) {
 
     for (var i = 0; i < numberArray.length; i++) {
       task.addAssignees(users[numberArray[i]])
-      users[numberArray[i]].addTask(task)
+      temp_user = users[numberArray[i]];
+      temp_user.addTask(newTask);
+      user_id = temp_user.ID;
+      await usersCollection.updateOne({ ID: user_id }, { $set: temp_user })
       // console.log(users[numberArray[i]])
     }
-    sprints[sprintIndex].columns[Number(index1)].removeTasks(task);
-    sprints[sprintIndex].columns[parseInt(taskStatus)].tasks.push(task);
+    temp_sprint = sprints[sprintIndex];
+    temp_sprint.columns[Number(index1)].removeTasks(task);
+    sprintsCollection.updateOne( { ID: temp_sprint.ID }, {  $pull: {
+      // Define the field you want to remove the task from
+      // Assuming it's 'columns.<index>.tasks', where <index> is the index of the column
+      [`columns.${Number(index1)}.tasks`]: task
+  } })
+    temp_sprint2 = sprints[sprintIndex];
+    temp_sprint2.columns[parseInt(taskStatus)].tasks.push(task);
+    sprintsCollection.updateOne( { ID: temp_sprint2.ID }, { $set: temp_sprint2 })
   console.log("-------------------");
   console.log("AFTER EDITING");
   console.log(task);
@@ -219,7 +240,7 @@ app.post("/edit_task", function(req, res) {
 //   res.redirect("/main_page");
 // });
 
-app.post("/delete_task", function(req, res) {
+app.post("/delete_task",async function(req, res) {
   // console.log(req.body)
   // Extract data from the form
   const columnIndex = req.body.columnIndex;
@@ -228,6 +249,21 @@ app.post("/delete_task", function(req, res) {
   var intIndex = parseInt(taskIndex,10)
 
   var deletedTask = sprints[sprintIndex].columns[parseInt(columnIndex)].tasks.splice(parseInt(taskIndex),1)[0]
+  // Step 2: Identify the corresponding sprint document
+  const sprintId = sprints[sprintIndex].ID; // Assuming you have an '_id' property for sprints
+
+  // Step 3: Update the MongoDB collection to remove the task
+  const deleteTaskQuery = { ID: sprintId };
+  const deleteTaskUpdate = {
+    $pull: {
+      // Define the path to the tasks array you want to remove from
+      // Assuming it's 'columns.<index>.tasks', where <index> is the index of the column
+      [`columns.${parseInt(columnIndex)}.tasks`]: deletedTask
+    }
+  };
+
+  // Update the sprint document in the MongoDB collection
+  await sprintsCollection.updateOne(deleteTaskQuery, deleteTaskUpdate);
 
   var deletedTaskAssignees = deletedTask.assignees
 
@@ -235,14 +271,23 @@ app.post("/delete_task", function(req, res) {
     var assigneeIndex = users.indexOf(deletedTaskAssignees[i]);
     var deletetaskIndex = users[assigneeIndex].tasks.indexOf(deletedTask)
     users[assigneeIndex].tasks.splice(deletetaskIndex,1)
-
-  }
-
+    var assignee = deletedTaskAssignees[i];
   
+    // Find the user document in the usersCollection
+    const userQuery = { /* Define the query to find the user based on a unique identifier */ };
+    const userUpdate = {
+      $pull: {
+        tasks: deletedTask // Remove the deletedTask from the user's tasks array
+      }
+    };
+  
+    // Update the user document in the usersCollection
+    await usersCollection.updateOne(userQuery, userUpdate);
+  }
   res.json({ success: true });
 });
 
-app.post("/move_task", function(req, res) {
+app.post("/move_task",async function(req, res) {
   const target = req.body.target;
   const prev = req.body.prev;
   const index = req.body.itemindex;
@@ -260,11 +305,36 @@ app.post("/move_task", function(req, res) {
   console.log(columns[parseInt(prevColumnIndex)].tasks)
 
   var task = sprints[sprintIndex].columns[parseInt(prevColumnIndex)].tasks.splice(parseInt(index),1)[0]
+  // Find the sprint document in the sprintsCollection based on a unique identifier
+  const sprintQuery = { ID: sprints[sprintIndex].ID };
+
+  // Define the update to remove the task from the specified column within the sprint
+  const sprintUpdate = {
+    $pull: {
+      [`columns.${prevColumnIndex}.tasks`]: task // Remove the task from the specified column's tasks array
+    }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery, sprintUpdate);
 
   console.log("status before")
   task.status = targetColumnIndex
 
-  sprints[sprintIndex].columns[parseInt(targetColumnIndex)].tasks.push(task)
+  temp_sprint = sprints[sprintIndex]
+  temp_sprint.columns[parseInt(targetColumnIndex)].tasks.push(task)
+  // Find the sprint document in the sprintsCollection based on a unique identifier
+  const sprintQuery1 = { ID: temp_sprint.ID };
+
+  // Define the update to push the task into the specified column's tasks array within the sprint
+  const sprintUpdate1 = {
+    $push: {
+      [`columns.${targetColumnIndex}.tasks`]: task // Push the task into the specified column's tasks array
+    }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery1, sprintUpdate1);
   console.log("done")
 
   res.json({ success: true });
@@ -342,7 +412,7 @@ app.get("/dashboard", function(req, res) {
 
 
 // Handle POST request to create a new task
-app.post("/create_column", function(req, res) {
+app.post("/create_column",async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const columnName = req.body.columnName;
@@ -353,12 +423,24 @@ app.post("/create_column", function(req, res) {
 
   // Create a new task object using your Task class
   const newColumn = new Column(columnName);
-  sprints[sprintIndex].columns.push(newColumn);
+  temp_sprint = sprints[sprintIndex];
+  temp_sprint.columns.push(newColumn);
+  const sprintQuery = { ID:  temp_sprint.ID };
+
+  // Define the update to push the new column into the sprint's columns array
+  const sprintUpdate = {
+    $push: {
+      columns: newColumn // Push the new column into the sprint's columns array
+    }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery, sprintUpdate);
   
   res.status(200).json({ success: true });
 });
 
-app.post("/edit_column", function(req, res) {
+app.post("/edit_column",async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const columnName = req.body.columnName;
@@ -368,19 +450,49 @@ app.post("/edit_column", function(req, res) {
   console.log(columnIndex);
   console.log(sprintIndex);
 
-  sprints[sprintIndex].columns[columnIndex].name = columnName
+  temp_sprint = sprints[sprintIndex];
+  temp_sprint.columns[columnIndex].name = columnName;
+  
+  // Find the sprint document in the sprintsCollection based on a unique identifier
+  const sprintQuery = { ID : temp_sprint.ID};
+
+  // Define the updated column object with the new name
+  const updatedColumn = { name: columnName };
+
+  // Define the update to set the updated column in the sprint's columns array
+  const sprintUpdate = {
+    $set: {
+      [`columns.${columnIndex}`]: updatedColumn // Set the updated column in the sprint's columns array
+    }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery, sprintUpdate);
 
   res.status(200).json({ success: true });
 });
 
-app.post("/delete_column", function(req, res) {
+app.post("/delete_column",async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const columnIndex = req.body.columnIndex;
   const sprintIndex = req.body.sprintIndex;
   console.log(columnIndex);
 
-  sprints[sprintIndex].columns.splice(parseInt(columnIndex),1)
+  temp_sprint = sprints[sprintIndex]
+  temp_sprint.columns.splice(parseInt(columnIndex),1);
+  // Find the sprint document in the sprintsCollection based on a unique identifier
+  const sprintQuery = { ID :  temp_sprint.ID };
+
+  // Define the update to exclude the removed column from the sprint's columns array
+  const sprintUpdate = {
+    $pull: {
+      columns: { /* Define the criteria to identify the column you want to remove */ }
+    }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery, sprintUpdate);
   console.log(columns)
 
     
@@ -388,7 +500,7 @@ app.post("/delete_column", function(req, res) {
   
 });
 
-app.post("/move_column", function(req, res) {
+app.post("/move_column", async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const sourceIndex = req.body.source;
@@ -397,10 +509,24 @@ app.post("/move_column", function(req, res) {
   console.log(sourceIndex);
   console.log(targetIndex);
 
+  temp_sprint = sprints[sprintIndex];
+  const columnToMove = temp_sprint.columns.splice(sourceIndex, 1)[0];
+  temp_sprint.columns.splice(targetIndex, 0, columnToMove);
 
-  const columnToMove = sprints[sprintIndex].columns.splice(sourceIndex, 1)[0];
-  sprints[sprintIndex].columns.splice(targetIndex, 0, columnToMove);
+  // Find the sprint document in the sprintsCollection based on a unique identifier
+  const sprintQuery = { ID : temp_sprint.ID };
 
+  // Get the current columns array from the sprint
+  const sprint = sprintsCollection.findOne(sprintQuery);
+  const currentColumns = sprint.columns;
+
+  // Define the update to set the new columns array in the sprint
+  const sprintUpdate = {
+    $set: { columns: currentColumns }
+  };
+
+  // Update the sprint document in the sprintsCollection
+  await sprintsCollection.updateOne(sprintQuery, sprintUpdate);
   res.status(200).json({ success: true });
   
 });
@@ -415,7 +541,7 @@ app.get("/edit_user_page", function(req, res) {
   res.render("edit_user", {user:user});
 });
 
-app.post("/edit_user", function(req, res) {
+app.post("/edit_user",async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const userName = req.body.userName;
@@ -428,16 +554,28 @@ app.post("/edit_user", function(req, res) {
   console.log(userId)
 
   const targetUser = users.find((user) => user.id === userId);
-
+  const userUpdates = {};
   if (targetUser.name !== userName){
-    targetUser.name = userName
+    targetUser.name = userName;
+    userUpdates.name = userName;
   }
   if (targetUser.username !== userUsername){
-    targetUser.username = userUsername
+    targetUser.username = userUsername;
+    userUpdates.username = userUsername;
   }
   if (userPassword.length > 0 && userPasswordtargetUser.password !== userPassword){
-    targetUser.password = userPassword
+    targetUser.password = userPassword;
+    userUpdates.password = userPassword;
     console.log("pw changed")
+  }
+
+  // Find the user document in the usersCollection based on a unique identifier
+  const userQuery = { ID: targetUser.ID };
+
+  // Check if there are updates to apply
+  if (Object.keys(userUpdates).length > 0) {
+    // Update the user document in the usersCollection
+    await usersCollection.updateOne(userQuery, { $set: userUpdates });
   }
 
   users.sort((a, b) => a.name.localeCompare(b.name));
@@ -447,26 +585,32 @@ app.post("/edit_user", function(req, res) {
 });
 
 
-app.post("/delete_user", function(req, res) {
+app.post("/delete_user",async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const userIndex = req.body.userIndex;
 
   var deletedUser = users.splice(parseInt(userIndex),1)[0]
 
+  await usersCollection.deleteOne({ ID: deletedUser.ID })
+
   for (var i = 0; i < deletedUser.tasks.length; i++) {
     indexOfUserInTask = deletedUser.tasks[i].assignees.indexOf(deletedUser)
     deletedUser.tasks[i].assignees.splice(indexOfUserInTask,1)
 
     console.log(deletedUser.tasks[i].assignees)
-
-  }
-
   
+  }
+  await sprintsCollection.updateMany(
+    { "columns.tasks.assignees": deletedUser.ID }, // Match tasks where the user is in the assignees array
+    { $pull: { "columns.tasks.$.assignees": deletedUser.ID } } // Remove the user from the assignees array
+  )
+
+
   res.json({ success: true });
 });
 
-app.post("/add_user", function(req, res) {
+app.post("/add_user", async function(req, res) {
   console.log(req.body)
   // Extract data from the form
   const userName = req.body.userName;
@@ -476,7 +620,7 @@ app.post("/add_user", function(req, res) {
   console.log(userUsername)
   console.log(userPassword)
 
-  const usernameExists = users.some(user => user.username === userUsername);
+  const usernameExists = await usersCollection.findOne({ username: userUsername });
   if (usernameExists){
     res.status(400).json({ success: false });
   }
@@ -485,7 +629,7 @@ app.post("/add_user", function(req, res) {
 
     users.push(newUser)
     users.sort((a, b) => a.name.localeCompare(b.name));
-    
+    await usersCollection.insertOne(newUser);
     res.status(200).json({ success: true });
   }
   
@@ -496,13 +640,14 @@ app.get("/add_user", function(req, res) {
   res.render("add_user");
 });
 
-app.post("/delete_sprint", function(req, res) {
+app.post("/delete_sprint",async function(req, res) {
   console.log(req.body)
   const sprintIndex = req.body.sprintIndex;
   console.log(sprintIndex);
-
+  
   sprints.splice(parseInt(sprintIndex),1)
-
+  temp_sprint = sprints[parseInt(sprintIndex)]
+  await sprintsCollection.deleteOne({ ID: temp_sprint.ID });
   res.status(200).json({ success: true });
 });
 
@@ -520,6 +665,7 @@ app.post("/create_sprint", function(req, res) {
 
   const newSprint = new Sprint(sprintName, sprintStatus, sprintStartDate, sprintEndDate);
   sprints.push(newSprint);
+  sprintsCollection.insertOne(newSprint);
   
   res.status(200).json({ success: true });
 });
@@ -533,7 +679,7 @@ app.get("/edit_sprint", function(req, res) {
   res.render("edit_sprint", {sprint:sprints[sprintIndex]});
 });
 
-app.post("/edit_sprint", function(req, res) {
+app.post("/edit_sprint",async function(req, res) {
   const sprintName = req.body.sprintName;
   const sprintStatus = req.body.sprintStatus;
   const sprintStartDate = req.body.sprintStartDate;
@@ -546,7 +692,23 @@ app.post("/edit_sprint", function(req, res) {
   sprint.status = sprintStatus;
   sprint.start_date = sprintStartDate;
   sprint.end_date = sprintEndDate;
-  
+
+  // Assuming each sprint document has a unique identifier like '_id'
+  const sprintId = sprints[sprintIndex].ID; // Replace with the actual field name
+
+  // Create an update object with the new values
+  const updateObject = {
+    $set: {
+      name: sprintName,
+      status: sprintStatus,
+      start_date: sprintStartDate,
+      end_date: sprintEndDate
+    }
+  };
+
+  // Update the sprint document in the MongoDB collection
+  const result = await sprintsCollection.updateOne({ ID: sprintId }, updateObject);
+
   res.status(200).json({ success: true });
 });
 
