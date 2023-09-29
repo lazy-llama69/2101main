@@ -104,6 +104,8 @@
         </form>
     </div>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const sprintIndex = urlParams.get('sprintIndex')
         document.getElementById("editUserForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
             
@@ -135,7 +137,7 @@
                     if (response.ok) {
                         // Redirect to the main page upon successful submission
                         console.log("Form submission successful");
-                        window.location.href = "/manage_user";
+                        window.location.href = "/manage_user"
                     } else {
                         // Handle errors here (e.g., display an error message)
                         console.error("Form submission failed");
@@ -156,7 +158,7 @@
         }
 
         function navigateToManageUser() {
-            window.location.href = "/manage_user";
+            window.location.href = "/manage_user"
         }
         
     </script>
