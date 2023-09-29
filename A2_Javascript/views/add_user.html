@@ -101,6 +101,9 @@
         </form>
     </div>
     <script>
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const sprintIndex = urlParams.get('sprintIndex')
         document.getElementById("createUserForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
             

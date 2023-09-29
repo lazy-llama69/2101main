@@ -176,6 +176,9 @@
         const urgentCheckbox = document.getElementById("urgentCheckbox");
         const urgentLabel = document.querySelector('label[for="urgentCheckbox"]');
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const sprintIndex = urlParams.get('sprintIndex')
+
         // Add an event listener to the Priority dropdown
         taskPriorityDropdown.addEventListener("change", function () {
             // Check if the selected option is "IMPORTANT"
@@ -231,6 +234,7 @@
             formData.append("taskStage", taskStage);
             formData.append("isUrgent", isUrgent);
             formData.append("taskAssignees", taskAssignees);
+            formData.append("sprintIndex", sprintIndex)
 
             // Send a POST request with the form data to the server
             fetch("/create_task", {
@@ -240,16 +244,17 @@
                 },
                 body: formData
             })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to the main page upon successful submission
-                    console.log("Form submission successful");
-                    window.location.href = "/main_page";
-                } else {
-                    // Handle errors here (e.g., display an error message)
-                    console.error("Form submission failed");
-                }
-            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.href = "/main_page?sprintIndex=" + sprintIndex;
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+            
             .catch(error => {
                 // Handle network or other errors
                 console.error("Error:", error);
@@ -257,7 +262,7 @@
         });
 
         function navigateToMainPage() {
-            window.location.href = "/main_page"; // Navigate to the create_task.html page
+            window.location.href = "/main_page?sprintIndex=" + sprintIndex; // Navigate to the create_task.html page
         }
     </script>
 </body>

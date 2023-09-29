@@ -15,7 +15,9 @@ class Task {
         this.description = description;
         this.urgent = urgent;
         this.status = status;
-        this.stage = stage;
+        this.stage = stage
+        this.time_list = [];
+        this.time = 0;
     }
 
 
@@ -72,6 +74,11 @@ class Task {
         if (indexToRemove !== -1) {
             this.priority.splice(indexToRemove, 1);
             }
+    }
+
+    addTime(newTime) {
+        this.time_list.push(newTime);
+        this.time += newTime;
     }
 }
 
