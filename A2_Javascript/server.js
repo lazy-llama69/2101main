@@ -172,9 +172,10 @@ app.post("/edit_task", function(req, res) {
   const taskAssignees = req.body.taskAssignees;
   const index1 = req.body.columnIndex;
   const index2 = req.body.taskIndex;
+  const sprintIndex = req.body.sprintIndex;
   console.log("-------")
   
-  let task = columns[Number(index1)].tasks[Number(index2)];
+  let task = sprints[sprintIndex].columns[Number(index1)].tasks[Number(index2)];
   
   console.log("BEFORE EDITING");
   console.log(task);
@@ -189,22 +190,27 @@ app.post("/edit_task", function(req, res) {
   task.stage = taskStage;
 
   var stringArray = taskAssignees.split(',');
+
+  console.log(taskAssignees);
     var numberArray = stringArray.map(function(item) {
       return parseFloat(item);
     });
+
+    console.log(numberArray);
 
     for (var i = 0; i < numberArray.length; i++) {
       task.addAssignees(users[numberArray[i]])
       users[numberArray[i]].addTask(task)
       // console.log(users[numberArray[i]])
     }
-    columns[Number(index1)].removeTasks(task);
-    columns[parseInt(taskStatus)].tasks.push(task);
+    sprints[sprintIndex].columns[Number(index1)].removeTasks(task);
+    sprints[sprintIndex].columns[parseInt(taskStatus)].tasks.push(task);
   console.log("-------------------");
   console.log("AFTER EDITING");
   console.log(task);
 
-  res.redirect("/main_page");
+
+  res.status(200).json({ success: true });
 });
 
 // Add a separate route for handling the redirect
@@ -294,9 +300,10 @@ app.get("/edit_task_page", function(req, res) {
   //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
 
   // Get the values of the parameters
+  let sprintIndex = req.query.sprintIndex;
   let columnIndex = req.query.param1;
   let taskIndex = req.query.param2;
-  const task = columns[Number(columnIndex)].tasks[Number(taskIndex)]
+  const task = sprints[sprintIndex].columns[Number(columnIndex)].tasks[Number(taskIndex)]
   const ID = task.id
   const name = task.name
   const complexity = task.complexity
@@ -307,16 +314,16 @@ app.get("/edit_task_page", function(req, res) {
   const urgent = task.urgent
   const status = task.status
   const stage = task.stage
-  res.render("edit_task",{task:[ID,name,complexity,tag,priority,assignees,description,urgent,status,stage,Number(columnIndex),Number(taskIndex)], columns:columns, users:users});
-  const columnIndex = req.query.param1;
-  const taskIndex = req.query.param2;
-  const sprintIndex = req.query.sprintIndex;
-  console.log(columnIndex)
-  console.log(taskIndex)
+  res.render("edit_task",{task:[ID,name,complexity,tag,priority,assignees,description,urgent,status,stage,Number(columnIndex),Number(taskIndex)], columns:sprints[sprintIndex].columns, users:users});
+  // const columnIndex = req.query.param1;
+  // const taskIndex = req.query.param2;
+  // const sprintIndex = req.query.sprintIndex;
+  // console.log(columnIndex)
+  // console.log(taskIndex)
 
-  var task = sprints[sprintIndex].columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
-  console.log(task)
-  res.render("edit_task", {task:task, columns:sprints[sprintIndex], users: users, sprintIndex:sprintIndex});
+  // var task = sprints[sprintIndex].columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
+  // console.log(task)
+  // res.render("edit_task", {task:task, columns:sprints[sprintIndex], users: users, sprintIndex:sprintIndex});
 });
 
 // Add a new route to display the delete_task.html page

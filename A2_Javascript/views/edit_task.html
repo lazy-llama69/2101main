@@ -197,6 +197,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const columnIndex = urlParams.get("param1");
         const taskIndex = urlParams.get("param2");
+        const sprintIndex = urlParams.get("sprintIndex");
 
         // Now, columnIndex and taskIndex should contain the values from the URL
         console.log("Column Index:", columnIndex);
@@ -235,7 +236,8 @@
             formData.append("isUrgent", isUrgent);
             formData.append("taskAssignees", taskAssignees);
             formData.append("columnIndex", columnIndex);
-            formData.append("taskIndex", taskIndex);    
+            formData.append("taskIndex", taskIndex); 
+            formData.append("sprintIndex", sprintIndex);   
 
             // Send a POST request with the form data to the server
             fetch("/edit_task", {
@@ -245,23 +247,22 @@
                 },
                 body: formData
             })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to the main page upon successful submission
-                    console.log("Form submission successful");
-                    window.location.href = "/main_page";
-                } else {
-                    // Handle errors here (e.g., display an error message)
-                    console.error("Form submission failed");
-                }
-            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                        window.location.href = "/main_page?sprintIndex=" + sprintIndex;
+                    } else {
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+            
             .catch(error => {
                 // Handle network or other errors
                 console.error("Error:", error);
             });
         });
         function navigateToMainPage() {
-            window.location.href = "/main_page"; // Navigate to the create_task.html page
+            window.location.href = "/main_page?sprintIndex=" + sprintIndex; // Navigate to the create_task.html page
         }
         
     </script>

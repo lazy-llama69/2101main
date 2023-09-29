@@ -567,7 +567,7 @@
 
         
         function navigateToEditTask(sprintIndex, columnIndex, taskIndex) {
-            var url = "/edit_task_page?param1=" + sprintIndex + "param2=" + columnIndex + "&param3=" + taskIndex;
+            var url = "/edit_task_page?sprintIndex=" + sprintIndex + "&param1=" + columnIndex + "&param2=" + taskIndex;
             window.location.href = url; // Navigate to the edit_task.html page
         }
 
