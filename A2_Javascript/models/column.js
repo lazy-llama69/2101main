@@ -8,7 +8,7 @@ class Column {
 
         this.id = this.generateId();
         this.name = name;
-        this.tasks = [];
+        this.tasks= [];
     }
 
 
@@ -37,9 +37,11 @@ class Column {
     removeTasks(oldTask) {
         let itemToRemove = oldTask;
         let indexToRemove = this.tasks.indexOf(itemToRemove);
-        if (indexToRemove !== -1) {
-            this.priority.splice(indexToRemove, 1);
-            }
+        console.log("index: " + indexToRemove);
+        // if (indexToRemove !== -1) {
+        //     this.priority.splice(indexToRemove, 1);
+        //     }
+        this.tasks = this.tasks.filter(item => item !== oldTask);
     }
 }
 

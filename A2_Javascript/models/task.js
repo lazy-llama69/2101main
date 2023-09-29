@@ -15,7 +15,7 @@ class Task {
         this.description = description;
         this.urgent = urgent;
         this.status = status;
-        this.stage = stage
+        this.stage = stage;
     }
 
 

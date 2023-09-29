@@ -37,7 +37,7 @@ async function run() {
 run().catch(console.dir);
 
 
-let columns = [];
+var columns = [];
 let users = [];
 let admins = [];
 
@@ -94,7 +94,7 @@ app.post("/login_page", function(req, res) {
 
 // Handle POST request to create a new task
 app.post("/create_task", function(req, res) {
-    console.log(req.body)
+    // console.log(req.body)
     // Extract data from the form
     const taskName = req.body.taskName;
     const taskDescription = req.body.taskDescription;
@@ -105,7 +105,7 @@ app.post("/create_task", function(req, res) {
     const taskStage = req.body.taskStage;
     const isUrgent = JSON.parse(req.body.isUrgent);
     const taskAssignees = req.body.taskAssignees;
-    console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent,taskAssignees)
+    // console.log(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent,taskAssignees)
 
     // Create a new task object using your Task class
     const newTask = new Task(taskName, taskComplexity, taskTag, taskPriority, taskDescription, taskStatus, taskStage, isUrgent);
@@ -118,42 +118,73 @@ app.post("/create_task", function(req, res) {
     for (var i = 0; i < numberArray.length; i++) {
       newTask.addAssignees(users[numberArray[i]])
       users[numberArray[i]].addTask(newTask)
-      console.log(users[numberArray[i]])
+      // console.log(users[numberArray[i]])
     }
 
     columns[parseInt(taskStatus)].tasks.push(newTask);
-    console.log("here")
-    console.log(columns[parseInt(taskStatus)].tasks[0].assignees);
+    // console.log("here")
+    // console.log(columns[parseInt(taskStatus)].tasks[0].assignees);
 
     res.redirect("/main_page");
 });
 
 // Handle POST request to edit task
 app.post("/edit_task", function(req, res) {
-  console.log(req.body)
-  // Extract data from the form
-  // const taskIndex = req.body.Index;
-  // const taskStage = req.body.Stage
-  // var intIndex = parseInt(taskIndex,10)
-  // console.log(intIndex)
-  // console.log(taskStage)
-  // console.log(todotasks[taskIndex])
+  // console.log(req.body)
+  const taskName = req.body.taskName;
+  const taskDescription = req.body.taskDescription;
+  const taskPriority = req.body.taskPriority;
+  const taskComplexity = parseInt(req.body.taskComplexity);
+  const taskTag = req.body.taskTag;
+  const taskStatus = req.body.taskStatus;
+  const taskStage = req.body.taskStage;
+  const isUrgent = JSON.parse(req.body.isUrgent);
+  const taskAssignees = req.body.taskAssignees;
+  const index1 = req.body.columnIndex;
+  const index2 = req.body.taskIndex;
+  console.log("-------")
   
+  let task = columns[Number(index1)].tasks[Number(index2)];
+  
+  console.log("BEFORE EDITING");
+  console.log(task);
+  task.name = taskName;
+  task.complexity = taskComplexity;
+  task.tag = taskTag ;
+  task.priority = taskPriority;
+  task.assignees = [];
+  task.description = taskDescription;
+  task.urgent = isUrgent;
+  task.status = taskStatus;
+  task.stage = taskStage;
 
+  var stringArray = taskAssignees.split(',');
+    var numberArray = stringArray.map(function(item) {
+      return parseFloat(item);
+    });
 
-  //   Render the edit_task template
-  //res.render("edit_task", responseData);
+    for (var i = 0; i < numberArray.length; i++) {
+      task.addAssignees(users[numberArray[i]])
+      users[numberArray[i]].addTask(task)
+      // console.log(users[numberArray[i]])
+    }
+    columns[Number(index1)].removeTasks(task);
+    columns[parseInt(taskStatus)].tasks.push(task);
+  console.log("-------------------");
+  console.log("AFTER EDITING");
+  console.log(task);
+
   res.redirect("/main_page");
 });
 
 // Add a separate route for handling the redirect
-app.post("/edit_task/redirect", function (req, res) {
-  // Redirect to the main page
-  res.redirect("/main_page");
-});
+// app.post("/edit_task/redirect", function (req, res) {
+//   // Redirect to the main page
+//   res.redirect("/main_page");
+// });
 
 app.post("/delete_task", function(req, res) {
-  console.log(req.body)
+  // console.log(req.body)
   // Extract data from the form
   const columnIndex = req.body.columnIndex;
   const taskIndex = req.body.taskIndex
@@ -228,14 +259,20 @@ app.get("/edit_task_page", function(req, res) {
   //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
 
   // Get the values of the parameters
-  const columnIndex = req.query.param1;
-  const taskIndex = req.query.param2;
-  console.log(columnIndex)
-  console.log(taskIndex)
-
-  var task = columns[parseInt(columnIndex)].tasks[parseInt(taskIndex)]
-  console.log(task)
-  res.render("edit_task", {task:task, columns:columns, users:users});
+  let columnIndex = req.query.param1;
+  let taskIndex = req.query.param2;
+  const task = columns[Number(columnIndex)].tasks[Number(taskIndex)]
+  const ID = task.id
+  const name = task.name
+  const complexity = task.complexity
+  const tag = task.tag
+  const priority = task.priority
+  const assignees = task.assignees
+  const description = task.description
+  const urgent = task.urgent
+  const status = task.status
+  const stage = task.stage
+  res.render("edit_task",{task:[ID,name,complexity,tag,priority,assignees,description,urgent,status,stage,Number(columnIndex),Number(taskIndex)], columns:columns, users:users});
 });
 
 // Add a new route to display the delete_task.html page
