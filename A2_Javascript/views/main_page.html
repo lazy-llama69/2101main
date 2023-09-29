@@ -22,15 +22,20 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            padding: 0px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1500px;
+            height: 550px;
+            margin-top: 80px;
+            display: flex; /* Add display:flex to make children flex items */
+            overflow-x: auto;
         }
 
         .kanban-board {
             display: flex;
-            justify-content: space-between;
+            /* justify-content: space-between; */
             gap: 20px;
+            flex-wrap: nowrap; 
         }
 
         .kanban-column {
@@ -39,7 +44,10 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            min-height: 100px;
+            min-height: 80px;
+            width: 240px;
+            overflow-y: auto;
+            position: relative; /* Add relative positioning */
         }
 
         .column-title {
@@ -55,27 +63,64 @@
         }
 
         .task-item {
-            background-color: #fff;
+            /* background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
-            align-items: center; /* Vertically center task items */
+            justify-content: space-between; 
+            align-items: center; 
             color: #000;
+            flex-direction: column; 
+            max-height: 100px; 
+            overflow: auto; */
+            background-color: #fff;
+    border: 1px solid #ddd;
+    position: relative;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: #000; 
+    overflow-y: auto;
+
         }
 
-        .task-item .task-buttons {
-            display: flex;
-            gap: 2px;
+    .task-item .task-buttons {
+        /* display: flex;
+        gap: 2px;
+        align-self: flex-end; */
+        /* margin-left: auto; */
+        white-space: nowrap;
+        display: flex;
+        gap: 2px;
         }
 
         .task-buttons button {
+            /* background-color: transparent;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap; */
+
             background-color: transparent;
             border: none;
             cursor: pointer;
         }
+
+        .task-content {
+    flex-grow: 1; /* Allow text to grow within available space */
+}
+
+        .task-content span {
+    /* Allow text to wrap inside the span element */
+    white-space: normal;
+    word-wrap: break-word;
+}
+
 
         .add-button {
             background-color: #007bff;
@@ -86,6 +131,18 @@
             cursor: pointer;
             display: block; /* Make the button a block-level element */
             margin: 20px auto; /* Center the button horizontally */
+        }
+
+        .add-task-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: block; /* Make the button a block-level element */
+
+            margin: 0px auto ; /* Center the button horizontally */
         }
 
         .add-button:hover {
@@ -99,13 +156,36 @@
             right: 10px; /* Adjust this value to set the horizontal position */
         }
 
+        .bottom-middle {
+            position: absolute;
+            bottom: 5px; /* Adjust this value to set the vertical position */
+            left: 50%; /* Adjust this value to set the horizontal position */
+        }
+
+
+        .top-middle {
+    position: absolute;
+    top: 10px; /* Adjust the top position as needed */
+    left: 50%; /* Set the left position to 50% */
+    transform: translateX(-50%); /* Center the element horizontally */
+}
+
         /* Additional styling for the logout button if needed */
-        #logoutButton {
+        /* #logoutButton {
             background-color: red;
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
+        } */
+
+        #logoutButton {
+            background-color: transparent; /* Make the background transparent */
+            color: #fff; /* Text color */
+            border: none;
+            padding: 10px 20px; /* Adjust padding as needed */
+            cursor: pointer;
+            margin-top: 20px; /* Add some top margin to separate it from other content in the sidebar */
         }
 
         /* Styles for the modal */
@@ -165,136 +245,359 @@
             background-color: #f0f0f0; /* Change background color while dragging */
         }
 
+        /* Styles for the popup container */
+        .popup {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background overlay */
+            z-index: 999; /* Ensure it's on top of other elements */
+    }
+
+    .popup-content {
+        background-color: white;
+        padding: 40px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        position: relative;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        color: red;
+    }
+
+        /* Style for the input field */
+        #column-name {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Style for the confirm button */
+        .confirm-button {
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text */
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Hover style for the confirm button */
+        .confirm-button:hover {
+            opacity: 0.8;
+        }
+
+        /* Style for the delete column button */
+        .kanban-column .delete-column-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 5px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .kanban-column .edit-column-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 40px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        /* Hover style for the delete column button */
+        .delete-column-button:hover {
+            background-color: darkred;
+        }
+
+        .task-stage {
+            font-size: 10px; /* Adjust the font size as needed */
+            font-weight: 900; /* Use a specific value for ultra-bold */
+            color: #555; /* Adjust the color as needed */
+            display: block; /* Display the stage text on a new line */
+            margin-top: 5px; /* Add some spacing between task name and stage */
+        }
+
+        .task-time {
+            font-size: 10px; /* Adjust the font size as needed */
+            font-weight: 900; /* Use a specific value for ultra-bold */
+            color: black; /* Adjust the color as needed */
+
+            position: absolute;
+            top: 60px; /* Adjust top position as needed */
+            right: 5px; /* Adjust right position as needed */
+        }
+
+        .task-priority-dot {
+            width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust top position as needed */
+    right: 5px; /* Adjust right position as needed */
+
+    /* width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust top position as needed */
+    /* right: 5px; Adjust right position as needed */ 
+}
+
+.LOW {
+    background-color: green; /* Green for low priority */
+}
+
+.MEDIUM {
+    background-color: yellow; /* Yellow for medium priority */
+}
+
+.IMPORTANT {
+    background-color: orange; /* Red for high priority */
+}
+
+.URGENT {
+    background-color: red; /* Red for high priority */
+}
+
+
+.task-urgent-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 20px; /* Adjust top position as needed */
+    right: 5px; /* Adjust right position as needed */
+    background-color: red;
+
+    /* width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust top position as needed */
+    /* right: 5px; Adjust right position as needed */ 
+}
+
+/* Sidebar styles */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px; /* Start with the sidebar hidden */
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    transition: left 0.3s ease-in-out;
+}
+
+.sidebar-content {
+    padding: 20px;
+    color: #fff;
+}
+
+/* Button styles */
+.exit-button {
+    background-color: #d9534f; /* Red color for exit button */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px; /* Adjust the top position as needed */
+        left: 10px; /* Adjust the left position as needed */
+}
+
+
+#filterButton {
+    position: fixed;
+    top: 100px;
+    left: 30px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Task Management</h1>
+        <button class="exit-button" onclick="navigateToDashboard()">Close</button>
+        <div class="top-middle">
+            <h1><%= sprintName %></h1>
+        </div>
+        
         <!-- Logout button at the top right -->
         <div class="top-right">
-            <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
+            <button id="filterButton" onclick="navigateToFilter()">&#9660;</button>
+            <!-- <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button> -->
+            <button class="add-button" onclick="showAddColumnPopup()">Add Column</button>
+            
         </div>
-        <div class="kanban-board">
-            <div class="kanban-column"ondragover="allowDrop(event)" ondrop="drop(event)" data-task-status="TO_DO">
-                <h2 class="column-title" >To Do</h2>
-                <ul class="task-list" id="to-do-list">
-        <!-- Loop through todotasks and generate task cards -->
-                    <% for (let i = 0; i < todotasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= todotasks[i]._id %>" data-column="TO_DO"ondragstart="drag(event)" index ="<%=i%>">
-                            <%= todotasks[i].name %>
-                            <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'TO_DO')">✏️</button>
-                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'TO_DO')">❌</button>
-                            </div>
-                            <!-- Add buttons and dialog as needed -->
-                        </li>
-                    <% } %>
-                    <!-- Add more tasks here -->
-                </ul>
+
+        <div class="bottom-middle">
+            <button class="add-task-button" onclick="navigateToCreateTask()">Add Task</button>
+        </div>
+       <div class="kanban-board">
+
+            <% for (let i = 0; i < columns.length; i++) { %>
+            <div class="kanban-column" data-task-status= '<%= columns[i].name %>' data-task-index ='<%=i%>' ondragover="allowDrop(event)" ondrop="drop(event)" draggable="true" ondragstart="dragColumn(event)" >
+                
+                    <h2 class="column-title"><%= columns[i].name %></h2>
+                    
+                    <ul class="task-list" id="next-list" >    
+                        <% for (let j = 0; j < columns[i].tasks.length; j++) { %>
+                            <li class="task-item" draggable="true" id="<%= columns[i].tasks[j]._id %>" data-column='<%= columns[i].name %>' data-column-index = '<%= i%>'ondragstart="drag(event)" index ="<%=j%>" data-task-priority='<%= columns[i].tasks[j].priority %>' data-task-stage='<%= columns[i].tasks[j].stage %>' data-task-assignees='<%= columns[i].tasks[j].assignees.map(assignee => assignee.id).join(", ") %>'>
+                                <div class="task-time"style="color: <%= columns[i].tasks[j].time === 0 ? 'red' : 'inherit' %>"><%= columns[i].tasks[j].time %> Hours</div>
+                                <div class="task-priority-dot <%= columns[i].tasks[j].priority %>"></div>
+                                <% if (columns[i].tasks[j].urgent) { %>
+                                    <div class="task-urgent-dot"></div> 
+                                <% } %>
+                                <div class="task-content">
+                                    <span><%= columns[i].tasks[j].name %></span>
+                                    <span class="task-stage"><%= columns[i].tasks[j].tag %></span>
+                                </div>
+                                <div class="task-buttons">
+                                    <button class="edit-button" onclick="navigateToEditTask('<%=i%>', '<%=j %>')">✏️</button>
+                                    <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', '<%=j%>')">❌</button>
+                                </div>
+                                <!-- Add buttons and dialog as needed -->
+                            </li> 
+                        <% } %>
+                        <!-- Completed tasks -->
+                    </ul>
+                    <button class="delete-column-button" onclick="deleteColumn('<%= i %>')">❌</button> <!-- Delete button added here -->
+                    <button class="edit-column-button" onclick="openEditColumnPopup('<%= columns[i].name %>', '<%= i %>')">✏️</button> <!-- Delete button added here -->
             </div>
-            <div class="kanban-column" data-task-status="IN_PROGRESS" ondragover="allowDrop(event)" ondrop="drop(event)">
-                <h2 class="column-title" >In Progress</h2>
-                <ul class="task-list" id="in-progress-list" >
-                    <% for (let i = 0; i < inprogresstasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= inprogresstasks[i]._id %>" data-column="IN_PROGRESS" ondragstart="drag(event)" index ="<%=i%>">
-                            <%= inprogresstasks[i].name %>
-                            <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>','IN_PROGRESS')">✏️</button>
-                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>','IN_PROGRESS')">❌</button>
-                            </div>
-                            <!-- Add buttons and dialog as needed -->
-                        </li>
-                    <% } %>
-                    <!-- Tasks in progress -->
-                </ul>
-            </div>
-            <div class="kanban-column" data-task-status="DONE" ondragover="allowDrop(event)" ondrop="drop(event)">
-                <h2 class="column-title">Done</h2>
-                <ul class="task-list" id="done-list" >    
-                    <% for (let i = 0; i < donetasks.length; i++) { %>
-                        <li class="task-item" draggable="true" id="<%= donetasks[i]._id %>" data-column="DONE" ondragstart="drag(event)" index ="<%=i%>">
-                            <%= donetasks[i].name %>
-                            <div class="task-buttons">
-                                <button class="edit-button" onclick="navigateToEditTask('<%=i%>', 'DONE')">✏️</button>
-                                <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', 'DONE')">❌</button>
-                            </div>
-                            <!-- Add buttons and dialog as needed -->
-                        </li>
-                    <% } %>
-                    <!-- Completed tasks -->
-                </ul>
-            </div>
+            <% } %>
         </div>
         <!-- Button onclick will call the navigateToCreateTask -->
-        <button class="add-button" onclick="navigateToCreateTask()">Add Task</button>
+        
+        <!-- Popup container -->
+        <div id="column-popup" class="popup">
+            <!-- Popup content -->
+            <div class="popup-content">
+                <!-- Close button (X symbol) -->
+                <span class="close-button" onclick="closePopup()">&times;</span>
+                <!-- Input field for column name -->
+                <input type="text" id="column-name" placeholder="Enter column name">
+                <!-- Confirm button -->
+                <button class="confirm-button" onclick="addColumn()">Confirm</button>
+            </div>
+        </div>
+
+        <div id="edit-column-popup" class="popup">
+            <!-- Popup content -->
+            <div class="popup-content">
+                <!-- Close button (X symbol) -->
+                <span class="close-button" onclick="closeEditPopup()">&times;</span>
+                <!-- Input field for editing column name -->
+                <input type="text" id="edit-column-name" placeholder="Enter new column name">
+                <!-- Confirm button for editing column -->
+                <button class="confirm-button" onclick="editColumn()">Save</button>
+            </div>
+        </div>
+
     </div>
+
+    <!-- <div id="sidebar" class="sidebar-closed">
+        <div class="sidebar-content">
+            <button id="closeSidebarBtn" onclick="closeSidebar()">❌</button>
+            <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
+            <button id="logoutButton" onclick="navigateToManageUser()">Manage Users</button>
+        </div>
+    </div> -->
 
 
 
     <!-- Adding listeners -->
     <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterParam1 = urlParams.getAll('priority').filter(param => param !== '')
+    const filterParam2 = urlParams.getAll('stage').filter(param => param !== '')
+    const filterParam3 = urlParams.getAll('assignees').filter(param => param !== '')
+    const sprintIndex = urlParams.get('sprintIndex')
+    console.log(filterParam1);
+    console.log(filterParam2);
+    console.log(filterParam3);
+    console.log(sprintIndex);
 
-        //         // Add a dragstart event listener to your task cards
-        // document.querySelectorAll(".task-item").forEach(taskCard => {
-        //     taskCard.addEventListener("dragstart", (event) => {
-        //         // Set the data being dragged (you can use the task ID)
-        //         event.dataTransfer.setData("text/plain", event.target.id);
-        //     });
-        // });
+    function filterTaskItems() {
+        const taskItems = document.querySelectorAll('.task-item');
 
-        // // Add a dragover event listener to allow dropping on valid targets
-        // document.querySelectorAll(".kanban-column").forEach(column => {
-        //     column.addEventListener("dragover", (event) => {
-        //         event.preventDefault();
-        //     });
-        // });
+        taskItems.forEach(taskItem => {
+            const priority = taskItem.getAttribute('data-task-priority');
+            const stage = taskItem.getAttribute('data-task-stage');
+            const assigneesStr = taskItem.getAttribute('data-task-assignees');
+            const assignees = assigneesStr.split(', ').map(assignee => assignee.trim()); // Convert to an array of trimmed strings
+            console.log(priority);
+            console.log(stage);
+            console.log(assignees[0]);
 
-        // Add a drop event listener to handle the dropped task card
-        // document.querySelectorAll(".kanban-column").forEach(column => {
-        //     column.addEventListener("drop", (event) => {
-        //         event.preventDefault();
-        //         // Get the dragged task card's ID
-        //         const taskId = event.dataTransfer.getData("text/plain");
-        //         // Find the target column by checking the event's target
-        //         const targetColumn = event.target.closest(".kanban-column");
-        //         if (!targetColumn) return; // If not a valid target, do nothing
-        //         // Move the task card to the target column
-        //         targetColumn.querySelector("ul.task-list").appendChild(document.getElementById(taskId));
-        //     });
-        // });
-        // Add a drop event listener to handle the dropped task card
-        // document.querySelectorAll(".kanban-column").forEach(column => {
-        //     column.addEventListener("drop", (event) => {
-        //         event.preventDefault();
-        //         // Get the dragged task card's ID
-        //         const taskId = event.dataTransfer.getData("text/plain");
-        //         // Find the target column by checking the event's target
-        //         const targetColumn = event.target.closest(".kanban-column");
-        //         console.log(targetColumn)
-        //         if (!targetColumn) return; // If not a valid target, do nothing
-        //         // Move the task card to the target column
-        //         const taskCard = document.getElementById(taskId);
-        //         targetColumn.querySelector("ul.task-list").appendChild(taskCard);
+            // Check if the task-item matches the filter criteria
+            const matchFilter1 = filterParam1.length === 0 || filterParam1.includes(priority);
+            const matchFilter2 = filterParam2.length === 0 || filterParam2.includes(stage);
+            const matchFilter3 = filterParam3.length === 0 || filterParam3.every(assignee => assignees.includes(assignee))
+            console.log(matchFilter1)
+            console.log(matchFilter2)
+            console.log(matchFilter3)
 
-                
-        //     });
-        // });
+            if (matchFilter1 && matchFilter2 && matchFilter3) {
+                taskItem.style.display = 'block';
+            } else {
+                taskItem.style.display = 'none';
+            }
+        });
+    }
 
+// Call the filterTaskItems function initially to apply filters on page load
+filterTaskItems();
+
+
+
+
+    function dragColumn(event) {
+        console.log("dragcol")
+        const column = event.target;
+        event.dataTransfer.setData("text/plain", column.getAttribute("data-task-index"));
+        event.dataTransfer.setData("column", "true"); // Set a custom data type for columns
+        event.target.classList.add("dragging-column");
+    }
 
     // Function to initiate the drag operation
     function drag(event) {
+        console.log("dragtask")
         const index = event.target.getAttribute("index");
         const currentColumn = event.target.getAttribute("data-column");
+        const currentColumnIndex = event.target.getAttribute("data-column-index");
         event.dataTransfer.setData("text/plain", index);
         event.dataTransfer.setData("text/plain-column", currentColumn);
+        event.dataTransfer.setData("text/plain-column-index", currentColumnIndex);
         event.target.classList.add("dragging"); // Add a CSS class to highlight the dragged item
+
+        event.stopPropagation();
     }
 
     // Function to allow dropping on valid targets
     function allowDrop(event) {
         event.preventDefault();
-        const targetColumn = event.target.getAttribute('data-task-status');
-        if (sourceColumn !== targetColumn) {
+        const targetColumn = event.target.getAttribute('data-task-index');
+        const prevColumnIndex =event.dataTransfer.getData("text/plain-column-index");
+        
+        if (prevColumnIndex !== targetColumn) {
             event.dataTransfer.dropEffect = 'move';
         }
     }
@@ -302,55 +605,79 @@
     // Function to handle the drop event
     function drop(event) {
         event.preventDefault();
-        // const taskId = event.dataTransfer.getData('text/plain');
-        // const targetColumn = event.target.getData('text/plain-column');
-        const targetColumn = event.target.getAttribute("data-task-status");
-        const prevColumn =event.dataTransfer.getData("text/plain-column");
-        const index = event.dataTransfer.getData("text/plain");
+        const isColumnDrag = event.dataTransfer.getData("column") === "true";
+        console.log(isColumnDrag);
+        if (isColumnDrag) {
+            // Handle column dragging logic here
+            const sourceColumnIndex = event.dataTransfer.getData("text/plain");
+            const targetColumnIndex = event.target.getAttribute("data-task-index");
+            console.log(sourceColumnIndex);
+            console.log(targetColumnIndex);
+            if (sourceColumnIndex !== targetColumnIndex) {
+                // Implement logic to update the order of columns
+                moveColumn(sourceColumnIndex, targetColumnIndex);
+            }
 
-        const formData = new URLSearchParams();
-            formData.append("target", targetColumn);
-            formData.append("prev", prevColumn);
-            formData.append("index", index);
-        fetch("/move_task", {            
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: formData})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("Task deleted successfully.");
-                        window.location.reload(); // Reload the current page
-                    } else {
-                        console.log("Failed to delete task.");
-                        // Handle failure or provide feedback to the user
-                    }
-                })
-                .catch(error => {
-                    console.error("Error deleting task:", error);
-                    // Handle the error appropriately
-                });
-        
+            // Remove the dragging class from the column
+            const draggedColumn = document.querySelector(".kanban-column.dragging-column");
+            if (draggedColumn) {
+                draggedColumn.classList.remove("dragging-column");
+                }
+        } else{
+            const targetColumn = event.target.getAttribute("data-task-status");
+            const targetColumnIndex = event.target.getAttribute('data-task-index');
+            const prevColumn =event.dataTransfer.getData("text/plain-column");
+            const prevColumnIndex =event.dataTransfer.getData("text/plain-column-index");
+            const index = event.dataTransfer.getData("text/plain");
+
+            if (prevColumnIndex !== targetColumnIndex && prevColumnIndex !== null && targetColumnIndex !== null){
+                const formData = new URLSearchParams();
+                    formData.append("target", targetColumn);
+                    formData.append("prev", prevColumn);
+                    formData.append("itemindex", index);
+                    formData.append("targetColumnIndex", targetColumnIndex);
+                    formData.append("prevColumnIndex", prevColumnIndex);
+                    formData.append("sprintIndex", sprintIndex);
+                fetch("/move_task", {            
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: formData})
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                    console.log("Task deleted successfully.");
+                                    window.location.reload(); // Reload the current page
+                                } else {
+                                    console.log("Failed to delete task.");
+                                    // Handle failure or provide feedback to the user
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error deleting task:", error);
+                                // Handle the error appropriately
+                            });
+            }        
+        }
+
     }
 
-
-
-        function navigateToEditTask(taskIndex, taskStatus) {
-            const formData = new URLSearchParams();
-            formData.append("Index", taskIndex);
-            formData.append("Stage",taskStatus);
-
-            fetch("/edit_task_page",{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body : formData})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
+    function moveColumn(sourceIndex, targetIndex) {
+        // Ensure both sourceIndex and targetIndex are valid indices within your array
+        const formData = new URLSearchParams();
+        formData.append("target", targetIndex);
+        formData.append("source", sourceIndex);
+        formData.append("sprintIndex", sprintIndex);
+        fetch("/move_column", {            
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                         console.log("Task deleted successfully.");
                         window.location.reload(); // Reload the current page
                     } else {
@@ -362,20 +689,43 @@
                     console.error("Error deleting task:", error);
                     // Handle the error appropriately
                 });
-                window.location.href = "/edit_task_page"; // Navigate to the edit_task.html page
+
+        // Remove the column from the source index and store it in a variable
+
+
+        // Now, the columns array is updated with the new order
+
+        // You can trigger a UI update here to reflect the new order of columns
+        // For example, you can rerender your Kanban board based on the updated 'columns' array
+        //renderKanbanBoard();
+    }   
+
+
+        function navigateToEditTask(columnIndex, taskIndex) {
+            var url = "/edit_task_page?sprintIndex=" + sprintIndex + "&param1=" + columnIndex + "&param2=" + taskIndex;
+            window.location.href = url; // Navigate to the edit_task.html page
         }
 
         function navigateToCreateTask() {
-            window.location.href = "/create_task_page"; // Navigate to the create_task.html page
+            window.location.href = "/create_task?sprintIndex=" + sprintIndex; // Navigate to the create_task.html page
         }
 
-        function navigateToDeleteTask(taskIndex, taskStatus) {
+        function navigateToFilter() {
+            window.location.href = "/filter?sprintIndex=" + sprintIndex; // Navigate to the create_task.html page
+        }
+
+        // function navigateToManageUser() {
+        //     window.location.href = "/manage_user?sprintIndex=" + sprintIndex; // Navigate to the create_task.html page
+        // }
+
+        function navigateToDeleteTask(columnIndex, taskIndex) {
                 // Confirm if the user wants to delete the task
             if (confirm("Are you sure you want to delete this task?")) {
 
             const formData = new URLSearchParams();
-            formData.append("Index", taskIndex);
-            formData.append("Stage",taskStatus)
+            formData.append("columnIndex", columnIndex);
+            formData.append("taskIndex",taskIndex)
+            formData.append("sprintIndex",sprintIndex)
 
             // Send a POST request with the form data to the server
             fetch("/delete_task", {
@@ -401,13 +751,174 @@
             }
         }
 
-        function navigateToLoginPage() {
-            window.location.href = "/login_page"; // Navigate to the login_page.html page
+        // function navigateToLoginPage() {
+        //     window.location.href = "/login_page"; // Navigate to the login_page.html page
+        // }
+
+        function closePopup(){
+            const popup = document.getElementById('column-popup');
+            popup.style.display = 'none';
+        }
+
+        function showAddColumnPopup(){
+            const popup = document.getElementById('column-popup');
+            popup.style.display = 'flex';
         }
 
         function refreshPage() {
             window.location.reload();
         }
+
+        function addColumn() {
+            var columnName = document.getElementById('column-name');
+
+            if (columnName.value.trim() !== ""){
+                closePopup();
+                const formData = new URLSearchParams();
+                formData.append("columnName", columnName.value);
+                formData.append("sprintIndex", sprintIndex);
+
+                fetch("/create_column", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+
+                
+            }
+        }
+
+        function deleteColumn(columnIndex){
+            if (confirm("Are you sure you want to delete this column?")) {
+
+            const formData = new URLSearchParams();
+            formData.append("columnIndex", columnIndex);
+            formData.append("sprintIndex", sprintIndex);
+
+            // Send a POST request with the form data to the server
+            fetch("/delete_column", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+            }
+
+        }
+
+        document.getElementById('logoutButton').style.display = 'none';
+
+// function openSidebar() {
+//     document.getElementById('sidebar').style.left = '0';
+//     // Show the logout button when the sidebar is opened
+//     document.getElementById('logoutButton').style.display = 'block';
+// }
+
+// function closeSidebar() {
+//     document.getElementById('sidebar').style.left = '-250px';
+//     // Hide the logout button when the sidebar is closed
+//     document.getElementById('logoutButton').style.display = 'none';
+// }
+
+function openEditColumnPopup(currentColumnName, index) {
+    const editPopup = document.getElementById('edit-column-popup');
+    const editColumnNameInput = document.getElementById('edit-column-name');
+
+    // Set the input field value to the current column name
+    editColumnNameInput.value = currentColumnName;
+
+    editColumnNameInput.setAttribute('data-column-index', index);
+
+    // Display the edit column popup
+    editPopup.style.display = 'flex';
+}
+
+function closeEditPopup() {
+    const editPopup = document.getElementById('edit-column-popup');
+
+    // Hide the edit column popup
+    editPopup.style.display = 'none';
+}
+
+function navigateToDashboard() {
+            window.location.href = "/dashboard" // Navigate to the create_task.html page
+        }
+
+function editColumn() {
+    const editColumnNameInput = document.getElementById('edit-column-name');
+    const columnIndex =  editColumnNameInput.getAttribute('data-column-index');
+
+    const newColumnName = editColumnNameInput.value;
+
+    // Validate the new column name (you can add your validation logic here)
+
+    if (newColumnName.trim() !== "") {
+        closeEditPopup();
+        const formData = new URLSearchParams();
+        formData.append("columnName", newColumnName);
+        formData.append("columnIndex", columnIndex);
+        formData.append("sprintIndex", sprintIndex);
+
+                fetch("/edit_column", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+
+    } else {
+        // Handle validation error or empty column name
+        alert("Please enter a valid column name.");
+    }
+
+
+}
 
 
     </script>
