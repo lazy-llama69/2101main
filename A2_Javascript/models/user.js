@@ -22,6 +22,14 @@ class User {
         const randomNumber3 = Math.floor(Math.random() * 10);
         return `USER-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
+
+    setid(id){
+        this.id = id;
+    }
+
+    setTasks(tasks){
+        this.tasks = tasks;
+    }
     
     addTask(newTask) {
         this.tasks.push(newTask)
