@@ -32,6 +32,10 @@ class Task {
         const randomNumber3 = Math.floor(Math.random() * 10);
         return `E${randomChar1}${randomChar2}-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
+
+    setID(id){
+        this.id = id;
+    }
     
 
     getId() {

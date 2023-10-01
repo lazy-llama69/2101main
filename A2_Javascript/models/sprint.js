@@ -32,6 +32,14 @@ class Sprint {
         return this.id;
     }
 
+    setID(ID) {
+        this.id = ID;
+    }
+
+    setCol(col){
+        this.columns = col;
+    }
+
     setStartDate(startdate){
         this.start_date = startdate
     }
