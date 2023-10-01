@@ -23,7 +23,7 @@ class User {
         return `USER-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
 
-    setID(id){
+    setid(id){
         this.id = id;
     }
 

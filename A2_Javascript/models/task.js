@@ -33,7 +33,7 @@ class Task {
         return `E${randomChar1}${randomChar2}-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
 
-    setID(id){
+    setid(id){
         this.id = id;
     }
     

@@ -32,7 +32,7 @@ class Sprint {
         return this.id;
     }
 
-    setID(ID) {
+    setid(ID) {
         this.id = ID;
     }
 
