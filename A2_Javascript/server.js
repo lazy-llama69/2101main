@@ -3,6 +3,7 @@ let db;
 let collection;
 
 const express = require("express");
+const _ = require('lodash');
 let path = require("path");
 const app = express();
 app.listen(8080);
@@ -176,7 +177,9 @@ async function run() {
         });
 
         for (var i = 0; i < numberArray.length; i++) {
-          newTask.addAssignees(users[numberArray[i]])
+          const taskWithoutCircularRefs = _.cloneDeep(newTask); // Deep copy of newTask
+          // Add assignees without circular references
+          taskWithoutCircularRefs.addAssignees(users[numberArray[i]]);
           temp_user = users[numberArray[i]];
           temp_user.addTask(newTask);
           user_id = temp_user.id;
@@ -208,18 +211,20 @@ async function run() {
       console.log("-------")
       
       let task = sprints[sprintIndex].columns[Number(index1)].tasks[Number(index2)];
-      
+      const clonedTask = _.cloneDeep(task);
+
       console.log("BEFORE EDITING");
       console.log(task);
-      task.name = taskName;
-      task.complexity = taskComplexity;
-      task.tag = taskTag ;
-      task.priority = taskPriority;
-      task.assignees = [];
-      task.description = taskDescription;
-      task.urgent = isUrgent;
-      task.status = taskStatus;
-      task.stage = taskStage;
+      // Update properties of the cloned task
+      clonedTask.name = taskName;
+      clonedTask.complexity = taskComplexity;
+      clonedTask.tag = taskTag;
+      clonedTask.priority = taskPriority;
+      clonedTask.assignees = taskAssignees;
+      clonedTask.description = taskDescription;
+      clonedTask.urgent = isUrgent;
+      clonedTask.status = taskStatus;
+      clonedTask.stage = taskStage;
 
       var stringArray = taskAssignees.split(',');
 
@@ -231,9 +236,9 @@ async function run() {
         console.log(numberArray);
 
         for (var i = 0; i < numberArray.length; i++) {
-          task.addAssignees(users[numberArray[i]])
+          clonedTask.addAssignees(users[numberArray[i]])
           temp_user = users[numberArray[i]];
-          temp_user.addTask(task);
+          temp_user.addTask(clonedTask);
           user_id = temp_user.id;
           await usersCollection.updateOne({ id: user_id }, { $set: temp_user })
           // console.log(users[numberArray[i]])
@@ -667,8 +672,7 @@ async function run() {
       const sprintIndex = req.body.sprintIndex;
       console.log(sprintIndex);
       
-      sprints.splice(parseInt(sprintIndex),1)
-      temp_sprint = sprints[parseInt(sprintIndex)]
+      temp_sprint = sprints.splice(parseInt(sprintIndex),1)[0]
       await sprintsCollection.deleteOne({ id: temp_sprint.id });
       res.status(200).json({ success: true });
     });
