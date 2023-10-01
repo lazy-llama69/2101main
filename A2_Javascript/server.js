@@ -124,7 +124,27 @@ async function run() {
         sprintData.end_date
       );
       temp.setid(sprintData.id);
+      // outer_col = [];
+      // for (const column of sprintData.columns){
+      //   temp_col = []
+      //   for (const task of column.tasks){
+      //     temp_task = new Task(
+      //       task.name,
+      //       task.complexity,
+      //       task.tag,
+      //       task.priority,
+      //       task.description,
+      //       task.status,
+      //       task.stage,
+      //       task.urgent
+      //     );
+      //     temp_task.setid(task.id);
+      //     temp_col.push(temp_task);
+      //   }
+      //   outer_col.push(temp_col);
+      // }
       temp.setCol(sprintData.columns);
+      // console.log(sprintData.columns[0].tasks)
       return temp;
     });  
 
@@ -138,7 +158,20 @@ async function run() {
         userData.password); 
       // Set any other properties as needed
       user.setid(userData.id);
-      user.setTasks(userData.tasks);
+      for (const task of userData.tasks) {
+        temp_task = new Task(
+          task.name,
+          task.complexity,
+          task.tag,
+          task.priority,
+          task.description,
+          task.status,
+          task.stage,
+          task.urgent
+        );
+        temp_task.setid(task.id);
+        user.addTask(temp_task);
+      }
       return user;
     });
 
@@ -180,11 +213,15 @@ async function run() {
           const taskWithoutCircularRefs = _.cloneDeep(newTask); // Deep copy of newTask
           // Add assignees without circular references
           taskWithoutCircularRefs.addAssignees(users[numberArray[i]]);
-          temp_user = users[numberArray[i]];
-          temp_user.addTask(newTask);
-          user_id = temp_user.id;
-          await usersCollection.updateOne({ id: user_id }, { $set: temp_user })
-          // console.log(users[numberArray[i]])
+          
+          // Use the deep copy of newTask for temp_user
+          const temp_user = _.cloneDeep(users[numberArray[i]]);
+          temp_user.addTask(taskWithoutCircularRefs);
+          
+          const user_id = temp_user.id;
+          
+          // Update the user in the collection with the deep copied temp_user
+          await usersCollection.updateOne({ id: user_id }, { $set: temp_user });
         }
         
         temp_sprint = sprints[sprintIndex];
@@ -212,6 +249,7 @@ async function run() {
       
       let task = sprints[sprintIndex].columns[Number(index1)].tasks[Number(index2)];
       const clonedTask = _.cloneDeep(task);
+      console.log("tasks", sprints[sprintIndex].columns[Number(index1)].tasks)
 
       console.log("BEFORE EDITING");
       console.log(task);
@@ -220,12 +258,12 @@ async function run() {
       clonedTask.complexity = taskComplexity;
       clonedTask.tag = taskTag;
       clonedTask.priority = taskPriority;
-      clonedTask.assignees = taskAssignees;
+      clonedTask.assignees = [];
       clonedTask.description = taskDescription;
       clonedTask.urgent = isUrgent;
       clonedTask.status = taskStatus;
       clonedTask.stage = taskStage;
-
+      console.log("task assigneeess ",taskAssignees);
       var stringArray = taskAssignees.split(',');
 
       console.log(taskAssignees);
@@ -237,6 +275,7 @@ async function run() {
 
         for (var i = 0; i < numberArray.length; i++) {
           clonedTask.addAssignees(users[numberArray[i]])
+          console.log(clonedTask.taskAssignees);
           temp_user = users[numberArray[i]];
           temp_user.addTask(clonedTask);
           user_id = temp_user.id;
