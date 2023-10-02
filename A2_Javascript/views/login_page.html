@@ -69,22 +69,24 @@
 <body>
     <div class="container">
         <h2>Login</h2>
-        <div class="input-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="input-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn" onclick="validateLoginForm()">Login</button>
+        <form action="/login_page" method="POST">
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn" >Login</button>
+        </form>
     </div>
 
     <!-- Adding listeners -->
 <!-- Adding listeners -->
 <script>
     function navigateToMainPage() {
-        window.location.href = "/dashboard"; // Navigate to the main_page.html page
+        window.location.href = "/main_page"; // Navigate to the main_page.html page
     }
 
     function validateLoginForm() {
@@ -93,49 +95,23 @@
 
         // Check if both username and password are filled
         if (username && password) {
-            if (isValidEmail(username)) {
-                // If the email is valid, navigate to the appropriate page
-                if (isAdminEmail(username)) {
-                    // Admin account
-                    navigateToMainPage();
-                    
-                } else if (isUserEmail(username)) {
-                    // User account
-                } else {
-                    // Invalid account type
-                    alert("Invalid account type. Please use a valid admin or user account.");
-                    return false; // Prevent form submission
-                }
-                return true; // Allow form submission
-            } else {
-            // Invalid email format
-            alert("Please enter a valid email address.");
-            return false; // Prevent form submission
-            }
-        }
-        else {
+            // If both fields are filled, navigate to the main page
+            navigateToMainPage();
+            return true; // Allow form submission
+        } else {
             // If either field is empty, display an error message or prevent submission
             alert("Please fill in both username and password.");
             return false; // Prevent form submission
         }
+    }
+</script>
+
+
+
+
+
+
+
     
-
-    }
-
-    function isValidEmail(email) {
-        var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-        return emailPattern.test(email);
-    }
-
-    // Function to check if the email is an admin account
-    function isAdminEmail(email) {
-        return email.endsWith("@admin.slay.com");
-    }
-
-    // Function to check if the email is a slay user account
-    function isUserEmail(email) {
-        return email.endsWith("@user.slay.com");
-    }
-</script>  
 </body>
 </html>

@@ -4,7 +4,7 @@
  */
 class Task {
 
-    constructor(name, complexity, tag, priority, description, status, stage, urgent) {
+    constructor(name, complexity, tag, priority, description, status, stage) {
 
         this.id = this.generateId();
         this.name = name;
@@ -13,11 +13,8 @@ class Task {
         this.priority = priority;
         this.assignees = [];
         this.description = description;
-        this.urgent = urgent;
         this.status = status;
         this.stage = stage
-        this.time_list = [];
-        this.time = 0;
     }
 
 
@@ -31,10 +28,6 @@ class Task {
         const randomNumber2 = Math.floor(Math.random() * 10);
         const randomNumber3 = Math.floor(Math.random() * 10);
         return `E${randomChar1}${randomChar2}-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
-    }
-
-    setid(id){
-        this.id = id;
     }
     
 
@@ -78,11 +71,6 @@ class Task {
         if (indexToRemove !== -1) {
             this.priority.splice(indexToRemove, 1);
             }
-    }
-
-    addTime(newTime) {
-        this.time_list.push(newTime);
-        this.time += newTime;
     }
 }
 
