@@ -780,5 +780,6 @@ async function run() {
     // await client.close();
   }
 }
-
+// this is just to unfork the main
+console.log("running");
 run().catch(console.dir);
