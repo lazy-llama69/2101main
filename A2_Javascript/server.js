@@ -212,13 +212,18 @@ async function run() {
         for (var i = 0; i < numberArray.length; i++) {
           const taskWithoutCircularRefs = _.cloneDeep(newTask); // Deep copy of newTask
           // Add assignees without circular references
-          taskWithoutCircularRefs.addAssignees(users[numberArray[i]]);
+          taskWithoutCircularRefs.addAssignees(users[numberArray[i]].id);
+          newTask.addAssignees(users[numberArray[i]].id);
+          console.log(users[numberArray[i]].id);
           
           // Use the deep copy of newTask for temp_user
           const temp_user = _.cloneDeep(users[numberArray[i]]);
           temp_user.addTask(taskWithoutCircularRefs);
           
           const user_id = temp_user.id;
+
+          console.log("Assignees Added: ");
+          console.log(taskWithoutCircularRefs.assignees);
           
           // Update the user in the collection with the deep copied temp_user
           await usersCollection.updateOne({ id: user_id }, { $set: temp_user });
@@ -247,23 +252,39 @@ async function run() {
       const sprintIndex = req.body.sprintIndex;
       console.log("-------")
       
-      let task = sprints[sprintIndex].columns[Number(index1)].tasks[Number(index2)];
-      const clonedTask = _.cloneDeep(task);
-      console.log("tasks", sprints[sprintIndex].columns[Number(index1)].tasks)
+      let task1 = sprints[sprintIndex].columns[Number(index1)].tasks[Number(index2)];
+
+      let col1 = new Column(sprints[sprintIndex].columns[Number(index1)].name)
+      col1.setid(sprints[sprintIndex].columns[Number(index1)].id)
+      col1.settask(sprints[sprintIndex].columns[Number(index1)].tasks)
+      sprints[sprintIndex].columns[Number(index1)] = col1
+      let task = new Task(task1.name,
+        task1.complexity,
+        task1.tag,
+        task1.priority,
+        task1.description,
+        task1.status,
+        task1.stage,
+        task1.urgent)
+      task.setid(task1.id);
+
+      console.log("col1: ",col1);
+      // console.log("tasks", sprints[sprintIndex].columns[Number(index1)].tasks)
+      console.log("task: ",task);
 
       console.log("BEFORE EDITING");
-      console.log(task);
+      // console.log(task);
       // Update properties of the cloned task
-      clonedTask.name = taskName;
-      clonedTask.complexity = taskComplexity;
-      clonedTask.tag = taskTag;
-      clonedTask.priority = taskPriority;
-      clonedTask.assignees = [];
-      clonedTask.description = taskDescription;
-      clonedTask.urgent = isUrgent;
-      clonedTask.status = taskStatus;
-      clonedTask.stage = taskStage;
-      console.log("task assigneeess ",taskAssignees);
+      task.name = taskName;
+      task.complexity = taskComplexity;
+      task.tag = taskTag;
+      task.priority = taskPriority;
+      task.assignees = [];
+      task.description = taskDescription;
+      task.urgent = isUrgent;
+      task.status = taskStatus;
+      task.stage = taskStage;
+      // console.log("task assigneeess ",taskAssignees);
       var stringArray = taskAssignees.split(',');
 
       console.log(taskAssignees);
@@ -274,16 +295,20 @@ async function run() {
         console.log(numberArray);
 
         for (var i = 0; i < numberArray.length; i++) {
-          clonedTask.addAssignees(users[numberArray[i]])
-          console.log(clonedTask.taskAssignees);
+          // console.log(task)
+          task.addAssignees(users[numberArray[i]].id)
+          // console.log(task.taskAssignees);
           temp_user = users[numberArray[i]];
-          temp_user.addTask(clonedTask);
+          temp_user.addTask(task);
           user_id = temp_user.id;
           await usersCollection.updateOne({ id: user_id }, { $set: temp_user })
           // console.log(users[numberArray[i]])
         }
         temp_sprint = sprints[sprintIndex];
+        console.log("the column object",temp_sprint.columns[Number(index1)])
         temp_sprint.columns[Number(index1)].removeTasks(task);
+        // console.log(sprints[sprintIndex])
+        // sprints[sprintIndex].removeTasks(task);
         sprintsCollection.updateOne( { id: temp_sprint.id }, {  $pull: {
           // Define the field you want to remove the task from
           // Assuming it's 'columns.<index>.tasks', where <index> is the index of the column
@@ -445,7 +470,9 @@ async function run() {
       const complexity = task.complexity
       const tag = task.tag
       const priority = task.priority
+      console.log(task)
       const assignees = task.assignees
+      console.log(assignees);
       const description = task.description
       const urgent = task.urgent
       const status = task.status

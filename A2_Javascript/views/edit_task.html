@@ -153,7 +153,7 @@
             <div id="taskAssignees" style="max-height: 200px; overflow: auto;">
                 <% for (let i = 0; i < users.length; i++) { %>
                     <label style="margin: 0; padding: 0;">
-                        <input type="checkbox" name="selectedAssignees" value='<%= i %>' <%= task[5].includes(users[i]) ? 'checked' : '' %>>
+                        <input type="checkbox" name="selectedAssignees" value='<%= i %>' <%= task[5].includes(users[i].id) ? 'checked' : '' %>>
                         <span style="font-size: smaller;"><%= users[i].name %> (<%= users[i].username %>)</span>
                     </label><br>
                 <% } %>
