@@ -306,7 +306,7 @@ async function run() {
         }
         temp_sprint = sprints[sprintIndex];
         console.log("the column object",temp_sprint.columns[Number(index1)])
-        temp_sprint.columns[Number(index1)].removeTasks(task);
+        temp_sprint.columns[Number(index1)].removeTasks(task1);
         // console.log(sprints[sprintIndex])
         // sprints[sprintIndex].removeTasks(task);
         sprintsCollection.updateOne( { id: temp_sprint.id }, {  $pull: {
@@ -357,15 +357,27 @@ async function run() {
       await sprintsCollection.updateOne(deleteTaskQuery, deleteTaskUpdate);
 
       var deletedTaskAssignees = deletedTask.assignees
+      console.log("deletedTaskAssignees:", deletedTaskAssignees)
 
       for (var i = 0; i < deletedTaskAssignees.length; i++) {
-        var assigneeIndex = users.indexOf(deletedTaskAssignees[i]);
-        var deletetaskIndex = users[assigneeIndex].tasks.indexOf(deletedTask)
-        users[assigneeIndex].tasks.splice(deletetaskIndex,1)
-        var assignee = deletedTaskAssignees[i];
+        // console.log("users",users);
+        // console.log("deletedTaskAssignees[i]:", deletedTaskAssignees[i])
+        // var assigneeIndex = users.indexOf(deletedTaskAssignees[i]);
+        deletedTaskAssignee = deletedTaskAssignees[i]
+        for (var j = 0; j < users.length; j++){
+          if (users[j].id == deletedTaskAssignee){
+            var deletetaskIndex = users[j].tasks.indexOf(deletedTask)
+            users[j].tasks.splice(deletetaskIndex,1)
+          }
+        }
+        // console.log("assignee index",assigneeIndex);
+        // console.log("you know la",users[assigneeIndex]);
+        // var deletetaskIndex = users[assigneeIndex].tasks.indexOf(deletedTask)
+        // users[assigneeIndex].tasks.splice(deletetaskIndex,1)
       
         // Find the user document in the usersCollection
-        const userQuery = { /* Define the query to find the user based on a unique identifier */ };
+        console.log("deletedTaskAssignee",deletedTaskAssignee);
+        const userQuery = { id: deletedTaskAssignee };
         const userUpdate = {
           $pull: {
             tasks: deletedTask // Remove the deletedTask from the user's tasks array
@@ -545,12 +557,16 @@ async function run() {
 
       temp_sprint = sprints[sprintIndex];
       temp_sprint.columns[columnIndex].name = columnName;
-      
+      temp_tasks = temp_sprint.columns[columnIndex].tasks; 
       // Find the sprint document in the sprintsCollection based on a unique identifier
       const sprintQuery = { id : temp_sprint.id};
 
       // Define the updated column object with the new name
-      const updatedColumn = { name: columnName };
+      const updatedColumn = { 
+        id: temp_sprint.id,
+        name: columnName,
+        tasks: temp_tasks
+       };
 
       // Define the update to set the updated column in the sprint's columns array
       const sprintUpdate = {
