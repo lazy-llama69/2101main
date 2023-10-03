@@ -454,7 +454,7 @@ async function run() {
 
     app.get("/developer_view", function(req, res) {
       const sprintIndex = req.query.sprintIndex;
-      res.render("developer_view", {columns:sprints[sprintIndex].columns, sprintIndex: sprintIndex, sprintName: sprints[sprintIndex].name});
+      res.render("developer_view", {sprints:sprints});
     });
 
     
