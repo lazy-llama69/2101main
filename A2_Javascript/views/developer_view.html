@@ -481,8 +481,7 @@
                                         <span><%= sprints[i].columns[j].tasks[k].name %></span>
                                     </div>
                                     <div class="task-buttons">
-                                        <button class="edit-button" onclick="navigateToEditTask('<%=i%>', '<%=j %>', '<%=k %>')">✏️</button>
-                                        <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', '<%=j%>', '<%=k %>')">❌</button>
+                                        
                                     </div>
                                     <!-- Add buttons and dialog as needed -->
                                 </li> 
@@ -490,8 +489,6 @@
                         <% } %>
                         <!-- Completed tasks -->
                     </ul>
-                    <button class="delete-sprint-button" onclick="navigateToDeleteSprint('<%= i %>')">❌</button> <!-- Delete button added here -->
-                    <button class="edit-sprint-button" onclick="navigateToEditSprint('<%= i %>')">✏️</button> <!-- Delete button added here -->
                     <button class="enter-sprint-button" onclick="navigateToMainPage('<%= i %>')">&crarr;</button> <!-- Delete button added here -->
             </div>
             <% } %>
@@ -506,7 +503,6 @@
             
             <button id="closeSidebarBtn" onclick="closeSidebar()">❌</button>
             <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
-            <button id="logoutButton" onclick="navigateToManageUser()">Manage Users</button>
         </div>
     </div>
 
