@@ -415,6 +415,13 @@ async function run() {
       res.render("main_page", {columns:sprints[sprintIndex].columns, sprintIndex: sprintIndex, sprintName: sprints[sprintIndex].name});
     });
 
+    app.get("/developer_view", function(req, res) {
+      const sprintIndex = req.query.sprintIndex;
+      res.render("developer_view", {columns:sprints[sprintIndex].columns, sprintIndex: sprintIndex, sprintName: sprints[sprintIndex].name});
+    });
+
+    
+
     app.get("/filter", function(req, res) {
       const sprintIndex = req.query.sprintIndex;
       res.render("filter", {columns:sprints[sprintIndex], users:users, sprintIndex:sprintIndex});
