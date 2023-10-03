@@ -23,7 +23,14 @@ class Column {
         const randomNumber3 = Math.floor(Math.random() * 10);
         return `E${randomChar1}${randomChar2}-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
+
+    setid(id){
+        this.id = id;
+    }
     
+    settask(tasks){
+        this.tasks = tasks;
+    }
 
     getId() {
         return this.id;
