@@ -633,8 +633,8 @@ async function run() {
       const sprintQuery = { id : temp_sprint.id };
 
       // Get the current columns array from the sprint
-      const sprint = sprintsCollection.findOne(sprintQuery);
-      const currentColumns = sprint.columns;
+      // const sprint = sprintsCollection.findOne(sprintQuery);
+      const currentColumns = temp_sprint.columns;
 
       // Define the update to set the new columns array in the sprint
       const sprintUpdate = {
