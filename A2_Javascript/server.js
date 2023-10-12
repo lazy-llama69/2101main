@@ -452,6 +452,13 @@ async function run() {
       res.render("main_page", {columns:sprints[sprintIndex].columns, sprintIndex: sprintIndex, sprintName: sprints[sprintIndex].name});
     });
 
+    app.get("/developer_view", function(req, res) {
+      const sprintIndex = req.query.sprintIndex;
+      res.render("developer_view", {sprints:sprints});
+    });
+
+    
+
     app.get("/filter", function(req, res) {
       const sprintIndex = req.query.sprintIndex;
       res.render("filter", {columns:sprints[sprintIndex], users:users, sprintIndex:sprintIndex});
@@ -626,8 +633,8 @@ async function run() {
       const sprintQuery = { id : temp_sprint.id };
 
       // Get the current columns array from the sprint
-      const sprint = sprintsCollection.findOne(sprintQuery);
-      const currentColumns = sprint.columns;
+      // const sprint = sprintsCollection.findOne(sprintQuery);
+      const currentColumns = temp_sprint.columns;
 
       // Define the update to set the new columns array in the sprint
       const sprintUpdate = {

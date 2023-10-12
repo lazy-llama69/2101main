@@ -87,6 +87,10 @@
         window.location.href = "/dashboard"; // Navigate to the main_page.html page
     }
 
+    function navigateToDeveloperView() {
+        window.location.href = "/developer_view"; // Navigate to the developer_view.html page
+    }
+
     function validateLoginForm() {
         var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
@@ -101,6 +105,7 @@
                     
                 } else if (isUserEmail(username)) {
                     // User account
+                    navigateToDeveloperView();
                 } else {
                     // Invalid account type
                     alert("Invalid account type. Please use a valid admin or user account.");
@@ -123,8 +128,9 @@
     }
 
     function isValidEmail(email) {
-        var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-        return emailPattern.test(email);
+        //var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        //return emailPattern.test(email);
+        return true
     }
 
     // Function to check if the email is an admin account
