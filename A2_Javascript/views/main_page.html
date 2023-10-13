@@ -25,8 +25,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            width: 100%;
-            max-width: 1400px;
+            width: 1400px;
             height: 550px;
             margin-top: 40px;
             display: flex; /* Add display:flex to make children flex items */
@@ -504,10 +503,26 @@
     background-color: #2c5792; /* Set the color on hover */
 }
 
+.page-transition {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.page-transition.fade-out {
+  opacity: 0;
+}
+
+
+.page-transition.fade-in {
+    opacity: 1;
+    transition: opacity 0.1s ease-in-out;
+}
+
 
     </style>
 </head>
 <body>
+    <div id="page-container" class="page-transition">
     <div class="container">
         <button class="exit-button" onclick="navigateToDashboard()">Close</button>
         <div class="top-middle">
@@ -560,7 +575,7 @@
             <button class="add-button" onclick="showAddColumnPopup()">
                 <span class ="larger-plus">+</span>
             </button>
-        </div>
+    </div>
         <!-- Button onclick will call the navigateToCreateTask -->
         
         <!-- Popup container -->
@@ -588,7 +603,9 @@
             </div>
         </div>
 
+
     </div>
+
 
     <!-- <div id="sidebar" class="sidebar-closed">
         <div class="sidebar-content">
@@ -602,6 +619,14 @@
 
     <!-- Adding listeners -->
     <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    // Add the "fade-in" class when the page has fully loaded
+    const pageContainer = document.getElementById('page-container');
+    pageContainer.classList.add('fade-in');
+        });
+
+
+
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam1 = urlParams.getAll('priority').filter(param => param !== '')
     const filterParam2 = urlParams.getAll('stage').filter(param => param !== '')
@@ -949,7 +974,11 @@ function closeEditPopup() {
 }
 
 function navigateToDashboard() {
-            window.location.href = "/dashboard" // Navigate to the create_task.html page
+
+            document.getElementById('page-container').classList.add('fade-out');
+            setTimeout(function() {
+                window.location.href = "/dashboard"; // Navigate to the create_task.html page
+            }, 400);
         }
 
 function editColumn() {
