@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #3498db;
+            background: linear-gradient(to bottom, #c785a9, #42222f);
             margin: 0;
             padding: 0;
             color: #fff;
@@ -19,14 +19,14 @@
         }
 
         .container {
-            background-color: #fff;
+            background-color: #e5c7df;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            padding: 0px;
+            padding: 20px;
             width: 100%;
-            max-width: 1500px;
+            max-width: 1400px;
             height: 550px;
-            margin-top: 80px;
+            margin-top: 40px;
             display: flex; /* Add display:flex to make children flex items */
             overflow-x: auto;
         }
@@ -41,19 +41,25 @@
         .kanban-column {
             flex: 1;
             background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            box-shadow: 5 5 15px rgba(0, 0, 0, 0.4);
             padding: 20px;
             min-height: 80px;
             width: 240px;
             overflow-y: auto;
             position: relative; /* Add relative positioning */
+            transition: transform 0.2s;
+        }
+        /* Add hover effect for even more 3D interaction */
+        .kanban-column:hover {
+            transform: translate(0, -5px); /* Move up slightly on hover */
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6); /* Increase shadow on hover */
         }
 
         .column-title {
             font-size: 20px;
             margin-bottom: 10px;
-            color: #3498db;
+            color: #da5878;
             text-align: center; /* Center column title */
         }
 
@@ -76,17 +82,17 @@
             max-height: 100px; 
             overflow: auto; */
             background-color: #fff;
-    border: 1px solid #ddd;
-    position: relative;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    color: #000; 
-    overflow-y: auto;
+            border: 1px solid #ddd;
+            position: relative;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            color: #000; 
+            overflow-y: auto;
 
         }
 
@@ -123,14 +129,22 @@
 
 
         .add-button {
-            background-color: #007bff;
-            color: #fff;
+            background-color: rgba(98, 106, 114, 0.5);
             border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
             cursor: pointer;
-            display: block; /* Make the button a block-level element */
-            margin: 20px auto; /* Center the button horizontally */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.8; /* Adjust the opacity as needed (0.0 to 1.0) */
+            margin-top: 245px;
+        }
+
+        .larger-plus {
+            font-size: 48px; /* Adjust the font size to make the plus icon larger */
+            font-weight: bold; /* Optional: Add bold for better visibility */
         }
 
         .add-task-button {
@@ -146,7 +160,7 @@
         }
 
         .add-button:hover {
-            background-color: #0056b3;
+            background-color: #400e21a2;
         }
 
         /* styles.css */
@@ -237,7 +251,7 @@
 
                 /* Highlight the valid drop targets */
         .kanban-column {
-            border: 2px dashed #3498db; /* Add a dashed border to indicate valid drop target */
+            border: 2px #da5878; /* Add a dashed border to indicate valid drop target */
         }
 
         /* Highlight the dragged task card */
@@ -379,11 +393,11 @@
 #sidebar {
     position: fixed;
     top: 0;
-    left: -250px; /* Start with the sidebar hidden */
+    right: -250px; /* Start with the sidebar hidden */
     width: 250px;
     height: 100%;
     background-color: #333;
-    transition: left 0.3s ease-in-out;
+    transition: right 0.3s ease-in-out;
 }
 
 .sidebar-content {
@@ -395,7 +409,7 @@
 #openSidebarBtn {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     background: transparent;
     border: none;
     color: #fff;
@@ -454,7 +468,6 @@
         <div class="top-right">
             <button id="openSidebarBtn" onclick="openSidebar()">&#9776;</button>
             <!-- <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button> -->
-            <button class="add-button" onclick="navigateToCreateSprint()">New Sprint</button>
             
         </div>
 
@@ -495,6 +508,9 @@
                     <button class="enter-sprint-button" onclick="navigateToMainPage('<%= i %>')">&crarr;</button> <!-- Delete button added here -->
             </div>
             <% } %>
+            <button class="add-button" onclick="navigateToCreateSprint()">
+                <span class ="larger-plus">+</span>
+            </button>
         </div>
         <!-- Button onclick will call the navigateToCreateTask -->
 
@@ -512,13 +528,13 @@
 
     <script>
         function openSidebar() {
-            document.getElementById('sidebar').style.left = '0';
+            document.getElementById('sidebar').style.right = '0';
             // Show the logout button when the sidebar is opened
             document.getElementById('logoutButton').style.display = 'block';
         }
 
         function closeSidebar() {
-            document.getElementById('sidebar').style.left = '-250px';
+            document.getElementById('sidebar').style.right = '-250px';
             // Hide the logout button when the sidebar is closed
             document.getElementById('logoutButton').style.display = 'none';
         }
