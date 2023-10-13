@@ -508,6 +508,30 @@ async function run() {
       // res.render("edit_task", {task:task, columns:sprints[sprintIndex], users: users, sprintIndex:sprintIndex});
     });
 
+    app.get("/burndown_chart_page", function(req, res) {
+      //res.sendFile(path.join(__dirname, "/views/edit_task.html"));
+
+      // Get the values of the parameters
+      let sprintIndex = req.query.sprintIndex;
+      let columnIndex = req.query.param1;
+      let taskIndex = req.query.param2;
+      const task = sprints[sprintIndex].columns[Number(columnIndex)].tasks[Number(taskIndex)]
+      const id = task.id
+      const name = task.name
+      const complexity = task.complexity
+      const tag = task.tag
+      const priority = task.priority
+      console.log(task)
+      const assignees = task.assignees
+      console.log(assignees);
+      const description = task.description
+      const urgent = task.urgent
+      const status = task.status
+      const stage = task.stage
+      res.render("burndown_chart",{task:[id,name,complexity,tag,priority,assignees,description,urgent,status,stage,Number(columnIndex),Number(taskIndex)], columns:sprints[sprintIndex].columns, users:users});
+    
+    });
+
     // Add a new route to display the delete_task.html page
     app.get("/delete_task_page", function(req, res) {
       res.sendFile(path.join(__dirname, "/views/delete_task.html"));
