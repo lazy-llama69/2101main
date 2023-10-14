@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../server.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to bottom, #c785a9, #42222f);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #e5c7df;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: 550px;
+            margin-top: 40px;
+            display: flex; /* Add display:flex to make children flex items */
+            overflow-x: auto;
+        }
+
+        .kanban-board {
+            display: flex;
+            /* justify-content: space-between; */
+            gap: 20px;
+            flex-wrap: nowrap; 
+        }
+
+        .kanban-column {
+            flex: 1;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            min-height: 80px;
+            width: 240px;
+            overflow-y: auto;
+            position: relative; /* Add relative positioning */
+            transition: transform 0.2s;
+        }
+        /* Add hover effect for even more 3D interaction */
+        .kanban-column:hover {
+            transform: translate(0, -5px); /* Move up slightly on hover */
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6); /* Increase shadow on hover */
+        }
+
+        .column-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #da5878;
+            text-align: center; /* Center column title */
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            /* background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            color: #000;
+            flex-direction: column; 
+            max-height: 100px; 
+            overflow: auto; */
+            background-color: #fff;
+            border: 1px solid #ddd;
+            position: relative;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            color: #000; 
+            overflow-y: auto;
+
+        }
+
+    .task-item .task-buttons {
+        /* display: flex;
+        gap: 2px;
+        align-self: flex-end; */
+        /* margin-left: auto; */
+        white-space: nowrap;
+        display: flex;
+        gap: 2px;
+        }
+
+        .task-buttons button {
+            /* background-color: transparent;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap; */
+
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .task-content {
+    flex-grow: 1; /* Allow text to grow within available space */
+}
+
+        .task-content span {
+    /* Allow text to wrap inside the span element */
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+
+        .add-button {
+            background-color: rgba(98, 106, 114, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.8; /* Adjust the opacity as needed (0.0 to 1.0) */
+            margin-top: 245px;
+        }
+
+        .list-view .add-button {
+            background-color: rgba(98, 106, 114, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.8; /* Adjust the opacity as needed (0.0 to 1.0) */
+            margin-left: 700px;
+            margin-top: 10px;
+        }
+
+        .larger-plus {
+            font-size: 48px; /* Adjust the font size to make the plus icon larger */
+            font-weight: bold; /* Optional: Add bold for better visibility */
+        }
+
+        .add-task-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: block; /* Make the button a block-level element */
+            margin: 0px auto ; /* Center the button horizontally */
+        }
+
+        .add-button:hover {
+            background-color: #400e21a2;
+        }
+
+        /* styles.css */
+        .top-right {
+            position: absolute;
+            top: 10px; /* Adjust this value to set the vertical position */
+            right: 10px; /* Adjust this value to set the horizontal position */
+        }
+
+        .top-left {
+            position: absolute;
+            top: 50px; /* Adjust this value to set the vertical position */
+            left: 50px; /* Adjust this value to set the horizontal position */
+        }
+
+        .bottom-middle {
+            position: absolute;
+            bottom: 5px; /* Adjust this value to set the vertical position */
+            left: 50%; /* Adjust this value to set the horizontal position */
+        }
+
+
+        .top-middle {
+    position: absolute;
+    top: 10px; /* Adjust the top position as needed */
+    left: 50%; /* Set the left position to 50% */
+    transform: translateX(-50%); /* Center the element horizontally */
+}
+
+        /* Additional styling for the logout button if needed */
+        /* #logoutButton {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        } */
+
+        #logoutButton {
+            background-color: transparent; /* Make the background transparent */
+            color: #fff; /* Text color */
+            border: none;
+            padding: 10px 20px; /* Adjust padding as needed */
+            cursor: pointer;
+            margin-top: 20px; /* Add some top margin to separate it from other content in the sidebar */
+        }
+
+        /* Styles for the modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999; /* Ensure the modal is on top of other elements */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Styles for buttons */
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .confirm-button {
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text */
+        }
+
+        .cancel-button {
+            background-color: #ccc; /* Gray color */
+            color: #000; /* Black text */
+        }
+
+        /* Hover styles for buttons */
+        .button:hover {
+            opacity: 0.8; /* Slightly reduce opacity on hover */
+        }
+
+                /* Highlight the valid drop targets */
+        .kanban-column {
+            border: 2px #da5878; /* Add a dashed border to indicate valid drop target */
+        }
+
+        /* Highlight the dragged task card */
+        .task-item.dragging {
+            background-color: #f0f0f0; /* Change background color while dragging */
+        }
+
+        /* Styles for the popup container */
+        .popup {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background overlay */
+            z-index: 999; /* Ensure it's on top of other elements */
+    }
+
+    .popup-content {
+        background-color: white;
+        padding: 40px;
+        border-radius: 50px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        position: relative;
+    }
+
+    .popup-content h2 {
+        color: #3498db;
+    }
+
+    #background.blur {
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    transition: filter 0.5s ease;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        color: red;
+    }
+
+        /* Style for the input field */
+        #column-name {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Style for the confirm button */
+        .confirm-button {
+            background-color: #3498db; /* Blue color */
+            color: #fff; /* White text */
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Hover style for the confirm button */
+        .confirm-button:hover {
+            opacity: 0.8;
+        }
+
+        /* Style for the delete column button */
+        .kanban-column .delete-sprint-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 5px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .kanban-column .edit-sprint-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 40px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .kanban-column .enter-sprint-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 110px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .kanban-column .view-burndown-chart-button {
+            position: absolute; /* Use absolute positioning */
+            top: 5px; /* Adjust the top position as needed */
+            right: 75px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .list-item .delete-sprint-button {
+            position: relative; /* Use absolute positioning */
+            top: -25px; /* Adjust the top position as needed */
+            right: -1300px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .list-item .edit-sprint-button {
+            position: relative; /* Use absolute positioning */
+            top: -25px; /* Adjust the top position as needed */
+            right: -1220px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .list-item .enter-sprint-button {
+            position: relative; /* Use absolute positioning */
+            top: -26px; /* Adjust the top position as needed */
+            right: -1150px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        .list-item .view-burndown-chart-button {
+            position: relative; /* Use absolute positioning */
+            top: -25px; /* Adjust the top position as needed */
+            right: -1080px; /* Adjust the right position as needed */
+            cursor: pointer;
+        }
+
+        /* Hover style for the delete column button */
+        .delete-sprint-button:hover {
+            background-color: darkred;
+        }
+
+        .task-stage {
+            font-size: 10px; /* Adjust the font size as needed */
+            font-weight: 900; /* Use a specific value for ultra-bold */
+            color: #555; /* Adjust the color as needed */
+            display: block; /* Display the stage text on a new line */
+            margin-top: 5px; /* Add some spacing between task name and stage */
+        }
+
+        /* Style for the list view container */
+.list-view {
+    display: flex;
+    flex-direction: column; /* Make sure items are stacked vertically */
+    gap: 20px;
+    max-height: 500px; /* Set a maximum height for vertical scrolling */
+    width: 150%;
+}
+
+.list-item {
+            flex: 1;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            min-height: 20px;
+            width: 1350px;
+            transition: transform 0.2s;
+            
+        }
+
+        .list-item:hover {
+            transform: translate(0, -5px); /* Move up slightly on hover */
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.6); /* Increase shadow on hover */
+        }
+
+        .list-column-title {
+            font-size: 20px;
+            color: #da5878;
+            text-align: left; /* Center column title */
+            margin-top: 0px;
+            margin-left: 25px;
+        }
+
+        .list-task-priority-dot {
+            width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: -35px; /* Adjust top position as needed */
+    margin-left: 0px; /* Adjust right position as needed */}
+
+        .task-priority-dot {
+            width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust top position as needed */
+    left: 5px; /* Adjust right position as needed */
+
+    /* width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust top position as needed */
+    /* right: 5px; Adjust right position as needed */ 
+}
+
+
+.kanban-column .COMPLETED::before {
+    content: "✅"; /* Add a green tick emoji here */
+    display: inline-block;
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center the content */
+}
+
+.COMPLETED {
+    background-color: green; /* Green for low priority */
+}
+
+.ACTIVE {
+    background-color: yellow; /* Yellow for medium priority */
+}
+
+.NOT_STARTED {
+    background-color: red; /* Red for high priority */
+}
+
+
+
+/* Sidebar styles */
+#sidebar {
+    position: fixed;
+    top: 0;
+    right: -250px; /* Start with the sidebar hidden */
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.sidebar-content {
+    padding: 20px;
+    color: #fff;
+}
+
+/* Button styles */
+#openSidebarBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#closeSidebarBtn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.column-dates {
+    font-size: 14px; /* Adjust the font size as needed */
+    color: #555; /* Adjust the text color as needed */
+    margin-top: 10px; /* Adjust the top margin as needed */
+    font-weight: bold;
+}
+
+.list-item .column-dates {
+    font-size: 14px; /* Adjust the font size as needed */
+    color: #555; /* Adjust the text color as needed */
+    margin-top: -10px; /* Adjust the top margin as needed */
+    margin-left: 300px;
+    font-weight: bold;
+}
+
+/* Style for the start date */
+.start-date {
+    margin-right: 10px; /* Add some space between start and end dates */
+}
+
+/* Style for the end date */
+.end-date {
+    /* You can add additional styles for the end date if needed */
+}
+
+.total-time {
+    /* You can add additional styles for the end date if needed */
+}
+.task-time {
+            font-size: 10px; /* Adjust the font size as needed */
+            font-weight: 900; /* Use a specific value for ultra-bold */
+            color: black; /* Adjust the color as needed */
+
+            position: absolute;
+            top: 40px; /* Adjust top position as needed */
+            right: 5px; /* Adjust right position as needed */
+        }
+
+        /* Change the color of the scrollbar track */
+::-webkit-scrollbar {
+    width: 10px; /* Set the width of the scrollbar */
+}
+
+/* Change the color of the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background-color: #b53e6e; /* Set the color you want for the thumb */
+    border-radius: 5px; /* Optional: Add rounded corners to the thumb */
+}
+
+/* Change the color of the scrollbar track on hover */
+::-webkit-scrollbar-track:hover {
+    background-color: #f0f0f0; /* Set the color on hover */
+}
+
+/* Change the color of the scrollbar thumb on hover */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #922c55; /* Set the color on hover */
+}
+
+#viewSelect {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333; /* Text color */
+    padding: 7px 12px; /* Padding */
+    border: 1px solid #ccc; /* Border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 10px; /* Font size */
+    cursor: pointer;
+    margin: 10px; /* Margin around the dropdown */
+}
+
+/* Hover effect for the dropdown */
+#viewSelect:hover {
+    background-color: #f0f0f0; /* Background color on hover */
+}
+
+.page-transition {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+.page-transition.fade-out {
+  opacity: 0;
+}
+
+.page-transition.fade-in {
+  opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+    <div id="page-container" class="page-transition">
+
+    <div class="container">
+        <div class="top-middle">
+            <h1>Sprint View</h1>
+        </div>
+        
+        <!-- Logout button at the top right -->
+        <div class="top-right">
+            <button id="openSidebarBtn" onclick="openSidebar()">&#9776;</button>
+            <!-- <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button> -->            
+        </div>
+
+        <div class="top-left">
+            <select id="viewSelect" onchange="changeView()">
+                <option value="kanban">Kanban View</option>
+                <option value="list">List View</option>
+            </select>
+            
+        </div>
+
+        <div class="kanban-board">
+
+                <% for (let i = 0; i < sprints.length; i++) { %>
+                <div class="kanban-column" data-task-status= '<%= sprints[i].name %>' data-task-index ='<%=i%>' ondragover="allowDrop(event)" ondrop="drop(event)" draggable="true" ondragstart="dragColumn(event)" >
+                    
+                        <h2 class="column-title"><%= sprints[i].name %></h2>
+                        <div class="task-priority-dot <%= sprints[i].status %>"></div> 
+
+                    <div class="column-dates">
+                        <p class="start-date">Start Date: <%= sprints[i].start_date %></p>
+                        <p class="end-date">End Date: <%= sprints[i].end_date %></p>
+                        <p class="total-time">Total Time: <%= sprints[i].calculateTotaltime() %> Hours</p>
+                    </div>
+                    
+                    <ul class="task-list" id="next-list" >    
+                        <% for (let j = 0; j < sprints[i].columns.length; j++) { %>
+                            <% for (let k = 0; k < sprints[i].columns[j].tasks.length;k++) { %>
+                                <li class="task-item" id="<%= sprints[i].columns[j].tasks[k]._id %>">
+                                    <div class="task-time"style="color: <%= sprints[i].columns[j].tasks[k].time === 0 ? 'red' : 'inherit' %>"><%= sprints[i].columns[j].tasks[k].time %> Hours</div>
+                                    <div class="task-content">
+                                        <span><%= sprints[i].columns[j].tasks[k].name %></span>
+                                    </div>
+                                    <div class="task-buttons">
+                                        <button class="edit-button" onclick="navigateToEditTask('<%=i%>', '<%=j %>', '<%=k %>')">✏️</button>
+                                        <button class="delete-button" onclick="navigateToDeleteTask('<%=i%>', '<%=j%>', '<%=k %>')">❌</button>
+                                    </div>
+                                </li> 
+                            <% } %>
+                        <% } %>
+                    </ul>
+                    <button class="delete-sprint-button" onclick="navigateToDeleteSprint('<%= i %>')">❌</button> 
+                    <button class="edit-sprint-button" onclick="navigateToEditSprint('<%= i %>')">✏️</button> 
+                    <button class="enter-sprint-button" onclick="navigateToMainPage('<%= i %>')">&crarr;</button>
+                    <% var totalComplexity = 0; %>
+                        <% for (let j = 0; j < sprints[i].columns.length; j++) { %>
+                            <% for (let z = 0; z < sprints[i].columns[j].tasks.length; z++) { %>
+                                <% totalComplexity += sprints[i].columns[j].tasks[z].complexity; %>
+                            <% } %>
+                        <% } %>
+                        <button class="view-burndown-chart-button" onclick="viewBurndownChart('<%= sprints[i].name %>', '<%= sprints[i].start_date %>', '<%= sprints[i].end_date %>', '<%= totalComplexity %>')">📈</button>
+
+
+        </div>
+            
+            <% } %>
+        <button class="add-button" onclick="navigateToCreateSprint()">
+            <span class ="larger-plus">+</span>
+        </button>
+    
+    </div>
+
+    <!-- </div> -->
+    <div id="sidebar" class="sidebar-closed">
+        <div class="sidebar-content">
+            <!-- Your sidebar content here -->
+            
+            <button id="closeSidebarBtn" onclick="closeSidebar()">❌</button>
+            <button id="logoutButton" onclick="navigateToLoginPage()">Logout</button>
+            <button id="logoutButton" onclick="navigateToManageUser()">Manage Users</button>
+        </div>
+    </div>  
+
+    <div id="burndownModal" class="popup" style="width: 35%; height: 10%; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);">
+    <!-- <div id="burndownModal" class="popup"> -->
+        <div class="popup-content">
+            <h2>Burndown Chart</h2>
+            <!-- Close button (X symbol) -->
+            <span class="close-button" onclick="closeBurndownChart()" style="font-size: 20px; padding: 5px;">&times;</span>
+            <canvas id="burndownChartCanvas" width="50" height="50"></canvas>
+        </div>
+    </div>
+
+
+    <div class="list-view" style="display: none;">
+        <% for (let i = 0; i < sprints.length; i++) { %>
+            <div class="list-item" data-task-status= '<%= sprints[i].name %>' data-task-index ='<%=i%>' >
+                
+                    <h2 class="list-column-title"><%= sprints[i].name %></h2>
+                    <div class="list-task-priority-dot <%= sprints[i].status %>"></div> 
+
+                <div class="column-dates">
+                    <div class="start-date">Start Date: <%= sprints[i].start_date %> &emsp;&emsp;&emsp;  End Date: <%= sprints[i].end_date %>  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;  Total Time: <%= sprints[i].calculateTotaltime() %> Hours</div>
+                </div>
+            
+                <button class="delete-sprint-button" onclick="navigateToDeleteSprint('<%= i %>')">❌</button> 
+                <button class="edit-sprint-button" onclick="navigateToEditSprint('<%= i %>')">✏️</button> 
+                <button class="enter-sprint-button" onclick="navigateToMainPage('<%= i %>')">&crarr;</button> 
+                <% var totalComplexity = 0; %>
+                    <% for (let j = 0; j < sprints[i].columns.length; j++) { %>
+                        <% for (let z = 0; z < sprints[i].columns[j].tasks.length; z++) { %>
+                            <% totalComplexity += sprints[i].columns[j].tasks[z].complexity; %>
+                        <% } %>
+                    <% } %>
+                    <button class="view-burndown-chart-button" onclick="viewBurndownChart('<%= sprints[i].name %>', '<%= sprints[i].start_date %>', '<%= sprints[i].end_date %>', '<%= totalComplexity %>')">📈</button>
+
+    
+    </div>
+        <% } %> 
+        <button class="add-button" onclick="navigateToCreateSprint()">
+            <span class="larger-plus">+</span>
+        </button>
+    </div>
+
+
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            // Add the "fade-in" class when the page has fully loaded
+            const pageContainer = document.getElementById('page-container');
+            pageContainer.classList.add('fade-in');
+        });
+
+        function openSidebar() {
+            document.getElementById('sidebar').style.right = '0';
+            // Show the logout button when the sidebar is opened
+            document.getElementById('logoutButton').style.display = 'block';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').style.right = '-250px';
+            // Hide the logout button when the sidebar is closed
+            document.getElementById('logoutButton').style.display = 'none';
+        }
+
+        function navigateToDeleteSprint(sprintIndex) {
+                // Confirm if the user wants to delete the task
+            if (confirm("Are you sure you want to delete this Sprint?")) {
+
+            const formData = new URLSearchParams();
+            formData.append("sprintIndex", sprintIndex);
+            // Send a POST request with the form data to the server
+            fetch("/delete_sprint", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+            }
+        }
+
+        function navigateToCreateSprint() {
+            var url = "/create_sprint"
+            window.location.href = url; // Navigate to the edit_task.html page
+        }
+
+
+        function navigateToEditSprint(sprintIndex) {
+            console.log(sprintIndex)
+            var url = "/edit_sprint?sprintIndex=" + sprintIndex
+            window.location.href = url; // Navigate to the edit_task.html page
+        }
+
+        
+        function navigateToEditTask(sprintIndex, columnIndex, taskIndex) {
+            var url = "/edit_task_page?sprintIndex=" + sprintIndex + "&param1=" + columnIndex + "&param2=" + taskIndex;
+            window.location.href = url; // Navigate to the edit_task.html page
+        }
+
+        function navigateToDeleteTask(sprintIndex,columnIndex, taskIndex) {
+                // Confirm if the user wants to delete the task
+            if (confirm("Are you sure you want to delete this task?")) {
+
+            const formData = new URLSearchParams();
+            formData.append("sprintIndex", sprintIndex);
+            formData.append("columnIndex", columnIndex);
+            formData.append("taskIndex",taskIndex);
+
+            // Send a POST request with the form data to the server
+            fetch("/delete_task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Task deleted successfully.");
+                        window.location.reload(); // Reload the current page
+                    } else {
+                        console.log("Failed to delete task.");
+                        // Handle failure or provide feedback to the user
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting task:", error);
+                    // Handle the error appropriately
+                });
+            }
+
+            
+        }
+
+        function navigateToMainPage(sprintIndex) {
+            document.getElementById('page-container').classList.add('fade-out');
+            setTimeout(function() {
+                window.location.href = `/main_page?sprintIndex=${sprintIndex}`;
+            }, 100);
+
+        }
+
+        function navigateToManageUser() {
+            window.location.href = "/manage_user"; // Navigate to the create_task.html page
+        }
+
+        function navigateToLoginPage() {
+            window.location.href = "/login_page"; // Navigate to the login_page.html page
+        }
+
+        // Function to open the burndown chart modal
+        function viewBurndownChart(name,startDate,endDate,totalComplexity) {
+            const burndownData = generateBurndownData(name, startDate, endDate, totalComplexity); // Implement this function to generate chart data
+            // const labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+            // const remainingWork = [10, 8, 6, 4, 2]; // These can be any dummy values you want
+            // console.log(sprint);
+
+            const burndownChartCanvas = document.getElementById('burndownChartCanvas');
+            // document.body.classList.add('blur');
+            // burndownChartCanvas.style.width = '400px'; // Adjust the width as needed
+            // burndownChartCanvas.style.height = '300px'; // Adjust the height as needed
+
+            // allows for closing and opening burndown chart repeatedly
+            if (window.burndownChart !== undefined) {
+                window.burndownChart.destroy();
+            }
+            window.burndownChart = new Chart(burndownChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: burndownData.labels,
+                    // labels: labels,
+                    datasets: [
+                        {
+                            label: 'Remaining Work',
+                            data: burndownData.remainingWork,
+                            // data: remainingWork,
+                            borderColor: 'blue',
+                        },
+                        {
+                            label: 'Estimated',
+                            data: burndownData.estimated,
+                            borderColor: 'green',
+                        }
+                    ],
+                },
+            });
+
+            const burndownModal = document.getElementById('burndownModal');
+            burndownModal.style.display = 'block';
+        };
+
+
+
+        // Function to close the burndown chart modal
+        function closeBurndownChart() {
+            const burndownModal = document.getElementById('burndownModal');
+            // document.body.classList.remove('blur');
+            // const background = document.getElementById('background');
+            // background.classList.remove('blur');
+            burndownModal.style.display = 'none';
+        }
+
+        function generateBurndownData(name,start,end,totalComplexity) {
+            const labels = []; // X-axis labels (e.g., days or sprints)
+            const estimated = []; //The estimated sprint progress 
+            const remainingWork = []; // Remaining work for each label
+
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+            // Calculate the difference in milliseconds
+            const differenceInMs = endDate.getTime() - startDate.getTime();
+
+            // Convert the difference to days
+            const differenceInDays = differenceInMs / (1000 * 3600 * 24);
+            
+            // let totalWork = sprint.totalWork; // Total work for the sprint
+            // You can access sprint properties like name, start_date, end_date, and status here
+
+            // // You might have a specific way to calculate daily or sprint-wise remaining work
+            // // Here, we assume a linear decrease of work every day or sprint
+            estimated_diff = totalComplexity / differenceInDays
+            console.log("ttoal complex",totalComplexity);
+            console.log("estimated ",estimated_diff);
+            // console.log("ttoal complex",totalComplexity);
+            for (let i = 0; i <= differenceInDays; i++) {
+                labels.push(`Day ${i}`);
+                estimated.push(totalComplexity - estimated_diff * i);
+                // remainingWork.push(totalWork);
+
+            //     // Simulate a linear decrease in work (adjust as needed)
+            //     // totalWork -= sprint.dailyWorkDecrease;
+                
+            //     // Ensure work doesn't go negative
+            //     // if (totalWork < 0) {
+            //     //     totalWork = 0;
+            //     // }
+            }
+
+            return {
+                labels: labels,
+                estimated: estimated,
+                remainingWork: remainingWork,
+            };
+        }
+
+        function changeView() {
+            const viewSelect = document.getElementById('viewSelect');
+            currentView = viewSelect.value;
+            const kanbanBoard = document.querySelector('.kanban-board');
+            const listView = document.querySelector('.list-view');
+
+            if (currentView === 'kanban') {
+                kanbanBoard.style.display = 'flex';
+                listView.style.display = 'none';
+            } else if (currentView === 'list') {
+                kanbanBoard.style.display = 'none';
+                listView.style.display = 'flex';
+            }
+        }
+
+
+
+
+
+
+
+    </script>

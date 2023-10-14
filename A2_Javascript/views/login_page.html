@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #3498db; /* Blue background */
+            background: linear-gradient(to bottom, #64abcb, #072b47);
             margin: 0;
             padding: 0;
             display: flex;
@@ -19,14 +19,14 @@
         .container {
             background-color: #fff;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 5 5 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
             width: 300px;
         }
 
         .container h2 {
             text-align: center;
-            color: #3498db; /* Blue text */
+            color: #072b47; /* Blue text */
         }
 
         .input-group {
@@ -52,7 +52,7 @@
         }
 
         .btn {
-            background-color: #3498db; /* Blue button background */
+            background-color: #64abcb; /* Blue button background */
             color: #fff;
             padding: 10px 20px;
             border: none;
@@ -62,31 +62,33 @@
         }
 
         .btn:hover {
-            background-color: #2980b9; /* Slightly darker blue on hover */
+            background-color: #072b47; /* Slightly darker blue on hover */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Login</h2>
-        <form action="/login_page" method="POST">
-            <div class="input-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn" >Login</button>
-        </form>
+        <div class="input-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn" onclick="validateLoginForm()">Login</button>
     </div>
 
     <!-- Adding listeners -->
 <!-- Adding listeners -->
 <script>
     function navigateToMainPage() {
-        window.location.href = "/main_page"; // Navigate to the main_page.html page
+        window.location.href = "/dashboard"; // Navigate to the main_page.html page
+    }
+
+    function navigateToDeveloperView() {
+        window.location.href = "/developer_view"; // Navigate to the developer_view.html page
     }
 
     function validateLoginForm() {
@@ -95,23 +97,51 @@
 
         // Check if both username and password are filled
         if (username && password) {
-            // If both fields are filled, navigate to the main page
-            navigateToMainPage();
-            return true; // Allow form submission
-        } else {
+            if (isValidEmail(username)) {
+                // If the email is valid, navigate to the appropriate page
+                if (isAdminEmail(username)) {
+                    // Admin account
+                    navigateToMainPage();
+                    
+                } else if (isUserEmail(username)) {
+                    // User account
+                    navigateToDeveloperView();
+                } else {
+                    // Invalid account type
+                    alert("Invalid account type. Please use a valid admin or user account.");
+                    return false; // Prevent form submission
+                }
+                return true; // Allow form submission
+            } else {
+            // Invalid email format
+            alert("Please enter a valid email address.");
+            return false; // Prevent form submission
+            }
+        }
+        else {
             // If either field is empty, display an error message or prevent submission
             alert("Please fill in both username and password.");
             return false; // Prevent form submission
         }
-    }
-</script>
-
-
-
-
-
-
-
     
+
+    }
+
+    function isValidEmail(email) {
+        //var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        //return emailPattern.test(email);
+        return true
+    }
+
+    // Function to check if the email is an admin account
+    function isAdminEmail(email) {
+        return email.endsWith("@admin.slay.com");
+    }
+
+    // Function to check if the email is a slay user account
+    function isUserEmail(email) {
+        return email.endsWith("@user.slay.com");
+    }
+</script>  
 </body>
 </html>

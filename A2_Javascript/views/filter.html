@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Tasks</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #64abcb, #072b47);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #1c5077;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px; /* Adjust the max-width to fit your content */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 0.85;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 93%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #1c5077;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .stage-label {
+            margin-top: 20px; /* Adjust this value as needed */
+        }
+
+        .exit-button {
+            background-color: #d9534f; /* Red color for exit button */
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px; /* Adjust the top position as needed */
+            left: 10px; /* Adjust the left position as needed */
+        }
+    </style>
+
+    <!-- You can include your external JavaScript file here as well -->
+    <!-- <script src="C:/MONASH_IT_SHYT/Yr_2/2101/A1/code/project/A2_Javascript/models/task.js"></script> -->
+</head>
+<body>
+    <h1>Filter Tasks</h1>
+
+    <!-- Outer Box (Container) -->
+    <div class="container">
+        <button class="exit-button" onclick="navigateToMainPage()">Close</button>
+        <!-- Filter Form -->
+        <form id="filterTaskForm">
+            <!-- Add your filter form elements here -->
+            <!-- For example, add filter criteria like Priority, Stage, Assignees, etc. -->
+            <!-- Ensure they have the same styling as your main page -->
+
+            <label for="priority">Priority:</label>
+            <div id="priority" style="max-height: 200px; overflow: auto;">
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedPriority" value="LOW">
+                    <span style="font-size: smaller;">Low</span>
+                </label><br>
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedPriority" value="MEDIUM">
+                    <span style="font-size: smaller;">Medium</span>
+                </label><br>
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedPriority" value="IMPORTANT">
+                    <span style="font-size: smaller;">Important</span>
+                </label><br>
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedPriority" value="URGENT">
+                    <span style="font-size: smaller;">Urgent</span>
+                </label><br>
+            </div><br>
+            
+            <label class="stage-label" for="stage">Stage:</label>
+            <div id="stage" style="max-height: 200px; overflow: auto;">
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedStage" value="PLANNING">
+                    <span style="font-size: smaller;">Planning</span>
+                </label><br>
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedStage" value="DEVELOPMENT">
+                    <span style="font-size: smaller;">Development</span>
+                </label><br>
+                <label style="margin: 0; padding: 0;">
+                    <input type="checkbox" name="selectedStage" value="TESTING">
+                    <span style="font-size: smaller;">Testing</span>
+                </label><br>
+            </div><br>
+
+            <label for="taskAssignees">Status:</label>
+            <div id="taskAssignees" style="max-height: 200px; overflow: auto;">
+                <% for (let i = 0; i < users.length; i++) { %>
+                    <label style="margin: 0; padding: 0;">
+                        <input type="checkbox" name="selectedAssignees" value='<%= users[i].id %>'>
+                        <span style="font-size: smaller;"><%= users[i].name %> (<%= users[i].username %>)</span>
+                    </label><br>
+                <% } %>
+            </div>
+
+            <!-- Submit Button for Filtering -->
+            <button type="submit" onclick="applyFilters(event)">Filter Tasks</button>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+         const sprintIndex = urlParams.get('sprintIndex');
+         console.log(sprintIndex);
+        // JavaScript code for handling filter form submission can go here
+
+        function navigateToMainPage() {
+            window.location.href = "/main_page?sprintIndex=" + sprintIndex; // Navigate back to the main page
+        }
+
+        function applyFilters(event) {
+            event.preventDefault();
+            // Collect selected priority values
+            const selectedPriority = [];
+            const priorityCheckboxes = document.getElementsByName('selectedPriority');
+            for (const checkbox of priorityCheckboxes) {
+                if (checkbox.checked) {
+                    selectedPriority.push(checkbox.value);
+                }
+            }
+            
+            // Collect selected stage values
+            const selectedStage = [];
+            const stageCheckboxes = document.getElementsByName('selectedStage');
+            for (const checkbox of stageCheckboxes) {
+                if (checkbox.checked) {
+                    selectedStage.push(checkbox.value);
+                }
+            }
+
+            // Collect selected assignee values
+            const selectedAssignees = [];
+            const assigneeCheckboxes = document.getElementsByName('selectedAssignees');
+            for (const checkbox of assigneeCheckboxes) {
+                if (checkbox.checked) {
+                    selectedAssignees.push(checkbox.value);
+                }
+            }
+
+            // Redirect to the main page with filter parameters
+            console.log(sprintIndex);
+            //const url = "/main_page?sprintIndex=" + sprintIndex;
+            const url = `/main_page?sprintIndex=${sprintIndex}&priority=${selectedPriority.join(', ')}&stage=${selectedStage.join(', ')}&assignees=${selectedAssignees.join(', ')}`;
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ class Column {
 
         this.id = this.generateId();
         this.name = name;
-        this.tasks = [];
+        this.tasks= [];
     }
 
 
@@ -23,7 +23,14 @@ class Column {
         const randomNumber3 = Math.floor(Math.random() * 10);
         return `E${randomChar1}${randomChar2}-${randomNumber}${randomNumber1}${randomNumber2}${randomNumber3}`;
     }
+
+    setid(id){
+        this.id = id;
+    }
     
+    settask(tasks){
+        this.tasks = tasks;
+    }
 
     getId() {
         return this.id;
@@ -37,9 +44,11 @@ class Column {
     removeTasks(oldTask) {
         let itemToRemove = oldTask;
         let indexToRemove = this.tasks.indexOf(itemToRemove);
-        if (indexToRemove !== -1) {
-            this.priority.splice(indexToRemove, 1);
-            }
+        console.log("index: " + indexToRemove);
+        // if (indexToRemove !== -1) {
+        //     this.priority.splice(indexToRemove, 1);
+        //     }
+        this.tasks = this.tasks.filter(item => item !== oldTask);
     }
 }
 
